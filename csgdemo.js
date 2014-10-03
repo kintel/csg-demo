@@ -601,6 +601,8 @@ function loaderFinished(result) {
 //	var mainscene = createScene();
 //	setup(mainscene, camera);
 	setup(result.scene, camera);
+
+  render();
 }
 
 function createScene() {
@@ -818,7 +820,6 @@ function onWindowResize() {
 function animate() {
   requestAnimationFrame(animate);
   controls.update();
-	render();
 }
 
 function createTestScene() {
