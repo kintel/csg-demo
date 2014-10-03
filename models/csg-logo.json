@@ -1,0 +1,92 @@
+{
+	"objects": {
+		"product1" : {
+			"position" : [ 0, 0, 0 ],
+			"rotation" : [ 0, 0, 0 ],
+			"scale"	   : [ 1, 1, 1 ],
+			"userData" : { "type" : "product" },
+			"visible"  : true,
+			"children" : {
+				"intersections" : {
+					"position" : [ 0, 0, 0 ],
+					"rotation" : [ 0, 0, 0 ],
+					"scale"	   : [ 1, 1, 1 ],
+					"userData" : { "type" : "intersections" },
+					"visible"  : true,
+					"children" : {
+						"p1isphere1" : {
+							"geometry" : "sphere",
+							"material" : "openscad_yellow",
+							"position" : [ 0, 0, 0 ],
+							"rotation" : [ 0, 0, 0 ],
+							"scale"	   : [ 1, 1, 1 ],
+							"visible"  : true
+						}
+					}
+				},
+				"differences" : {
+					"position" : [ 0, 0, 0 ],
+					"rotation" : [ 0, 0, 0 ],
+					"scale"	   : [ 1, 1, 1 ],
+					"userData" : { "type" : "differences" },
+					"visible"  : true,
+					"children" : {
+						"p1dcyl1" : {
+							"geometry" : "cylinder",
+							"material" : "openscad_green",
+							"position" : [ 0, 0, 0 ],
+							"rotation" : [ 0, 0, 0 ],
+							"scale"	   : [ 1, 1, 1 ],
+							"visible"  : true
+						},
+						"p1dcyl2" : {
+							"geometry" : "cylinder",
+							"material" : "openscad_green",
+							"position" : [ 0, 0, 0 ],
+							"rotation" : [ 0, 0, 1.5707963267948966 ],
+							"scale"	   : [ 1, 1, 1 ],
+							"visible"  : true
+						},
+						"p1dcyl3" : {
+							"geometry" : "cylinder",
+							"material" : "openscad_green",
+							"position" : [ 0, 0, 0 ],
+							"rotation" : [ 1.5707963267948966, 0, 0 ],
+							"scale"	   : [ 1, 1, 1 ],
+							"visible"  : true
+						}
+					}
+				}
+			}
+		}
+	},
+	"geometries": {
+
+		"cylinder": {
+			"type"  : "cylinder",
+			"topRad" : 12.5,
+			"botRad" : 12.5,
+			"height": 62.5,
+			"radSegs"  : 32
+		},
+
+		"sphere": {
+			"type"	: "sphere",
+			"radius"  : 25,
+			"widthSegments"  : 32,
+			"heightSegments" : 32
+		}
+	},
+	"materials": {
+		"openscad_yellow": {
+			"type": "MeshLambertMaterial",
+			"parameters": { "color": "#f9d72c", "ambient": "#0000FF" }
+		},
+		"openscad_green": {
+			"type": "MeshLambertMaterial",
+			"parameters": { "color": "#9dcb51", "ambient": "#0000FF" }
+		}
+	},
+	"defaults": {
+	}
+}

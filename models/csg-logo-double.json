@@ -1,0 +1,204 @@
+{
+	"objects": {
+		"transparents" : {
+			"position" : [ 0, 0, 0 ],
+			"rotation" : [ 0, 0, 0 ],
+			"scale"	   : [ 1, 1, 1 ],
+			"userData" : { "type" : "transparents" },
+			"visible"  : true,
+			"children" : {
+				"trans1": {
+					"geometry" : "cylinder",
+					"material" : "transparent_red",
+					"position" : [ 0, 0, 0 ],
+					"rotation" : [ 1.5707963267948966, 0, 0 ],
+					"scale"	   : [ 1, 1, 1 ],
+					"visible"  : true
+				},
+				"trans2": {
+					"geometry" : "cylinder",
+					"material" : "transparent_grey",
+					"position" : [ 35, 0, 0 ],
+					"rotation" : [ 1.5707963267948966, 0, 0 ],
+					"scale"	   : [ 1, 1, 1 ],
+					"visible"  : true
+				}
+			}
+		},
+		"product1" : {
+			"position" : [ 0, 0, 0 ],
+			"rotation" : [ 0, 0, 0 ],
+			"scale"	   : [ 1, 1, 1 ],
+			"userData" : { "type" : "product" },
+			"visible"  : true,
+			"children" : {
+				"intersections" : {
+					"position" : [ 0, 0, 0 ],
+					"rotation" : [ 0, 0, 0 ],
+					"scale"	   : [ 1, 1, 1 ],
+					"userData" : { "type" : "intersections" },
+					"visible"  : true,
+					"children" : {
+						"p1isphere1" : {
+							"geometry" : "sphere",
+							"material" : "phong_red",
+							"position" : [ 0, 0, 0 ],
+							"rotation" : [ 0, 0, 0 ],
+							"scale"	   : [ 1, 1, 1 ],
+							"visible"  : true
+						}
+					}
+				},
+				"differences" : {
+					"position" : [ 0, 0, 0 ],
+					"rotation" : [ 0, 0, 0 ],
+					"scale"	   : [ 1, 1, 1 ],
+					"userData" : { "type" : "differences" },
+					"visible"  : true,
+					"children" : {
+						"p1dcyl1" : {
+							"geometry" : "cylinder",
+							"material" : "faceted_white",
+							"position" : [ 0, 0, 0 ],
+							"rotation" : [ 0, 0, 0 ],
+							"scale"	   : [ 1, 1, 1 ],
+							"visible"  : true
+						},
+						"p1dcyl2" : {
+							"geometry" : "cylinder",
+							"material" : "faceted_white",
+							"position" : [ 0, 0, 0 ],
+							"rotation" : [ 0, 0, 1.5707963267948966 ],
+							"scale"	   : [ 1, 1, 1 ],
+							"visible"  : true
+						},
+						"p1dcyl3" : {
+							"geometry" : "cylinder",
+							"material" : "faceted_white",
+							"position" : [ 0, 0, 0 ],
+							"rotation" : [ 1.5707963267948966, 0, 0 ],
+							"scale"	   : [ 1, 1, 1 ],
+							"visible"  : true
+						}
+					}
+				}
+			}
+		},
+		"product2" : {
+			"position" : [ 10, 0, 0 ],
+			"rotation" : [ 0, 0, 0 ],
+			"scale"	   : [ 1, 1, 1 ],
+			"userData" : { "type" : "product" },
+			"visible"  : true,
+			"children" : {
+				"intersections2" : {
+					"position" : [ 35, 0, 0 ],
+					"rotation" : [ 0, 0, 0 ],
+					"scale"	   : [ 1, 1, 1 ],
+					"userData" : { "type" : "intersections" },
+					"visible"  : true,
+					"children" : {
+						"p2isphere1" : {
+							"geometry" : "sphere",
+							"material" : "phong_green",
+							"position" : [ 0, 0, 0 ],
+							"rotation" : [ 0, 0, 0 ],
+							"scale"	   : [ 1, 1, 1 ],
+							"visible"  : true
+						}
+					}
+				},
+				"differences2" : {
+					"position" : [ 35, 0, 0 ],
+					"rotation" : [ 0, 0, 0 ],
+					"scale"	   : [ 1, 1, 1 ],
+					"userData" : { "type" : "differences" },
+					"visible"  : true,
+					"children" : {
+						"p2dcyl1" : {
+							"geometry" : "cylinder",
+							"material" : "faceted_white",
+							"position" : [ 0, 0, 0 ],
+							"rotation" : [ 0, 0, 0 ],
+							"scale"	   : [ 1, 1, 1 ],
+							"visible"  : true
+						},
+						"p2dcyl2" : {
+							"geometry" : "cylinder",
+							"material" : "faceted_white",
+							"position" : [ 0, 0, 0 ],
+							"rotation" : [ 0, 0, 1.5707963267948966 ],
+							"scale"	   : [ 1, 1, 1 ],
+							"visible"  : true
+						}
+					}
+				}
+			}
+		}
+	},
+	"geometries": {
+
+		"cylinder": {
+			"type"  : "cylinder",
+			"topRad" : 12.5,
+			"botRad" : 12.5,
+			"height": 62.5,
+			"radSegs"  : 32
+		},
+
+		"sphere": {
+			"type"	: "sphere",
+			"radius"  : 25,
+			"widthSegments"  : 32,
+			"heightSegments" : 32
+		}
+	},
+	"materials": {
+		"faceted_white": {
+			"type": "MeshLambertMaterial",
+			"parameters": { "color": "#FFFF00", "ambient": "#0000FF" }
+		},
+		"transparent_grey": {
+			"type": "MeshLambertMaterial",
+			"parameters": { "color": "#AAAAAA", "ambient": "#0000FF", "opacity": 0.8 }
+		},
+		"transparent_red": {
+			"type": "MeshLambertMaterial",
+			"parameters": { "color": "#FF8888", "ambient": "#0000FF", "opacity": 0.8 }
+		},
+		"phong_red": {
+			"type": "MeshPhongMaterial",
+			"parameters": { "color": "#FF0000", "specular": "#FF8888", "shininess": 25, "ambient": "#111111", "bumpMap": "texture_bump", "bumpScale": -0.75 }
+		},
+		"phong_green": {
+			"type": "MeshPhongMaterial",
+			"parameters": { "specular": "#FFAA00", "shininess": 15, "ambient": "#000000", "map": "texture_bump", "bumpMap": "texture_bump", "bumpScale": 0.5 }
+		},
+		"wire": {
+			"type": "MeshBasicMaterial",
+			"parameters": { "color": "#FFFF00", "wireframe": true }
+		},
+		"reflection": {
+			"type": "MeshPhongMaterial",
+			"parameters": { "color": "#FFFFFF", "specular": "#ffffff", "ambient": "#888888", "shininess": 25, "envMap": "cube_reflection", "reflectivity": 1 }
+		}
+	},
+	"textures": {
+		"texture_bump": {
+			"url": "textures/moon_1024.jpg",
+			"anisotropy": 16
+		},
+		"cube_reflection": {
+			"url": [
+				"textures/SwedishRoyalCastle/px.jpg",
+				"textures/SwedishRoyalCastle/nx.jpg",
+				"textures/SwedishRoyalCastle/py.jpg",
+				"textures/SwedishRoyalCastle/ny.jpg",
+				"textures/SwedishRoyalCastle/pz.jpg",
+				"textures/SwedishRoyalCastle/nz.jpg"
+			]
+		}
+	},
+	"defaults": {
+	}
+}
