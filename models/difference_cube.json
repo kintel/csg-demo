@@ -1,0 +1,75 @@
+{
+	"objects": {
+		"product1" : {
+			"position" : [ 0, 0, 0 ],
+			"rotation" : [ 0, 0, 0 ],
+			"scale"	   : [ 1, 1, 1 ],
+			"userData" : { "type" : "product" },
+			"visible"  : true,
+			"children" : {
+				"intersections" : {
+					"position" : [ 0, 0, 0 ],
+					"rotation" : [ 0, 0, 0 ],
+					"scale"	   : [ 1, 1, 1 ],
+					"userData" : { "type" : "intersections" },
+					"visible"  : true,
+					"children" : {
+						"p1i_cube1" : {
+							"geometry" : "cube",
+							"material" : "openscad_yellow",
+							"position" : [ 0, 0, 0 ],
+							"rotation" : [ 0, 0, 0 ],
+							"scale"	   : [ 30, 30, 30 ],
+							"visible"  : true
+						}
+					}
+				},
+				"differences" : {
+					"position" : [ 0, 0, 0 ],
+					"rotation" : [ 0, 0, 0 ],
+					"scale"	   : [ 1, 1, 1 ],
+					"userData" : { "type" : "differences" },
+					"visible"  : true,
+					"children" : {
+						"p1d_sphere1" : {
+							"geometry" : "sphere",
+							"material" : "openscad_green",
+							"position" : [ 0, 0, 0 ],
+							"rotation" : [ 0, 0, 0 ],
+							"scale"	   : [ 20, 20, 20 ],
+							"visible"  : true
+						}
+					}
+				}
+			}
+		}
+	},
+	"geometries": {
+
+		"cube": {
+			"type"  : "cube",
+			"width" : 1,
+			"height" : 1,
+			"depth" : 1
+		},
+
+		"sphere": {
+			"type"	: "sphere",
+			"radius"  : 1,
+			"widthSegments"  : 32,
+			"heightSegments" : 32
+		}
+	},
+	"materials": {
+		"openscad_yellow": {
+			"type": "MeshLambertMaterial",
+			"parameters": { "color": "#f9d72c", "ambient": "#0000FF" }
+		},
+		"openscad_green": {
+			"type": "MeshLambertMaterial",
+			"parameters": { "color": "#9dcb51", "ambient": "#0000FF" }
+		}
+	},
+	"defaults": {
+	}
+}
