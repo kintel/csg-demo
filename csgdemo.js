@@ -243,64 +243,68 @@ SCSRenderer.prototype.renderConvexIntersections = function (product, camera, ren
 
 SCSRenderer.prototype.renderConvexSubtractions = function (product, camera, renderTarget)
 {
-	product.differences.overrideMaterial = this.scsPassMaterial;
-	
+  if (!product.differences) return;
+  
+  product.differences.overrideMaterial = this.scsPassMaterial;
+  
   renderer.clearTarget(renderTarget, false, false, true);
-
+  
   gl.colorMask(false,false,false,true);
-
-	renderer.setRenderTarget(renderTarget); // To get correct stencil bits
-	var stencilBits = gl.getParameter(gl.STENCIL_BITS);
-	var stencilMask = (1 << stencilBits) - 1;
-	var stencilCode = 0;
-
-	console.log("renderConvexSubtractions: " + stencilBits + " stencil bits");
-
+  
+  renderer.setRenderTarget(renderTarget); // To get correct stencil bits
+  var stencilBits = gl.getParameter(gl.STENCIL_BITS);
+  var stencilMask = (1 << stencilBits) - 1;
+  var stencilCode = 0;
+  
+  console.log("renderConvexSubtractions: " + stencilBits + " stencil bits");
+  
   // a) Mark all front facing fragments - this is where negative parts can show through
   gl.enable(gl.STENCIL_TEST);
-
-	product.differences.objects.forEach(function(obj) { obj.visible = false; });
-
+  
+  product.differences.objects.forEach(function(obj) { obj.visible = false; });
+  
   // This creates a worst-case (N^2) subtraction sequence
-	// Optimizations:
-	// o Batch primitives which don't overlap in screen-space
-	for (var j=0;j<product.differences.objects.length;j++) 
-	for (var i=0;i<product.differences.objects.length;i++) {
-		product.differences.objects[i].visible = true;
-
-		stencilCode++;
-
-		gl.depthMask(false);
-		gl.colorMask(false,false,false,false);
-		gl.stencilFunc(gl.ALWAYS, stencilCode, -1);
-		gl.stencilOp(gl.KEEP, gl.KEEP, gl.REPLACE);
-		renderer.render(product.differences, camera, renderTarget);
-		
-		// b) Render back faces clipped against marked area
-		gl.cullFace(gl.FRONT);
-		gl.depthFunc(gl.GEQUAL);
-		gl.depthMask(true);
-		gl.colorMask(false,false,false,true);
-		gl.stencilFunc(gl.EQUAL, stencilCode, -1);
-		gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
-		renderer.render(product.differences, camera, renderTarget);
-		
-		gl.depthFunc(gl.LEQUAL);
-		gl.cullFace(gl.BACK);
-
-		product.differences.objects[i].visible = false;
-	}
-	product.differences.objects.forEach(function(obj) { obj.visible = true; });
-
+  // Optimizations:
+  // o Batch primitives which don't overlap in screen-space
+  for (var j=0;j<product.differences.objects.length;j++) 
+    for (var i=0;i<product.differences.objects.length;i++) {
+      product.differences.objects[i].visible = true;
+      
+      stencilCode++;
+      
+      gl.depthMask(false);
+      gl.colorMask(false,false,false,false);
+      gl.stencilFunc(gl.ALWAYS, stencilCode, -1);
+      gl.stencilOp(gl.KEEP, gl.KEEP, gl.REPLACE);
+      renderer.render(product.differences, camera, renderTarget);
+      
+      // b) Render back faces clipped against marked area
+      gl.cullFace(gl.FRONT);
+      gl.depthFunc(gl.GEQUAL);
+      gl.depthMask(true);
+      gl.colorMask(false,false,false,true);
+      gl.stencilFunc(gl.EQUAL, stencilCode, -1);
+      gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
+      renderer.render(product.differences, camera, renderTarget);
+      
+      gl.depthFunc(gl.LEQUAL);
+      gl.cullFace(gl.BACK);
+      
+      product.differences.objects[i].visible = false;
+    }
+  product.differences.objects.forEach(function(obj) { obj.visible = true; });
+  
   gl.disable(gl.STENCIL_TEST);
   gl.colorMask(true, true, true, true);
-	delete product.differences.overrideMaterial;
+  delete product.differences.overrideMaterial;
 };
 
 SCSRenderer.prototype.renderClipZBuffer = function (product, camera, renderTarget)
 {
-	product.intersections.overrideMaterial = this.scsPassMaterial;
+  // FIXME: Do we need to render this when we have no subtractions?
 
+  product.intersections.overrideMaterial = this.scsPassMaterial;
+  
   //
   // a) Mark areas where we can see the backfaces
   // 
@@ -311,11 +315,11 @@ SCSRenderer.prototype.renderClipZBuffer = function (product, camera, renderTarge
   gl.enable(gl.STENCIL_TEST);
   gl.stencilFunc(gl.ALWAYS,1,-1);
   gl.stencilOp(gl.KEEP,gl.KEEP,gl.REPLACE);
-	
+  
   renderer.clearTarget(renderTarget, false, false, true);
   // Draw all intersected objects
-	renderer.render(product.intersections, camera, renderTarget);
-	
+  renderer.render(product.intersections, camera, renderTarget);
+  
   // 
   // b) Reset see-through pixels
   // 
@@ -326,11 +330,11 @@ SCSRenderer.prototype.renderClipZBuffer = function (product, camera, renderTarge
   gl.stencilFunc(gl.EQUAL,1,-1);
   gl.stencilOp(gl.KEEP,gl.KEEP,gl.KEEP);
   renderer.render(this.clipScene, this.quadCamera, renderTarget);
-
+  
   gl.disable(gl.STENCIL_TEST);
   gl.depthFunc(gl.LEQUAL);
   gl.colorMask(true,true,true,true);
-	delete product.intersections.overrideMaterial;
+  delete product.intersections.overrideMaterial;
 }
 
 /*!
@@ -338,83 +342,85 @@ SCSRenderer.prototype.renderClipZBuffer = function (product, camera, renderTarge
  The z buffer should represent a merged depth buffer
 */
 SCSRenderer.prototype.renderLightingUsingZBuffer = function(product, camera, renderTarget) {
-	gl.depthFunc(gl.EQUAL);
+  gl.depthFunc(gl.EQUAL);
   gl.colorMask(true,true,true,false);
-	renderer.render(product.intersections, camera, renderTarget);
-	gl.cullFace(gl.FRONT);
-	renderer.render(product.differences, camera, renderTarget);
-	gl.cullFace(gl.BACK);
+  renderer.render(product.intersections, camera, renderTarget);
+  if (product.differences) {
+    gl.cullFace(gl.FRONT);
+    renderer.render(product.differences, camera, renderTarget);
+  }
+  gl.cullFace(gl.BACK);
   gl.colorMask(true,true,true,true);
   gl.depthFunc(gl.LEQUAL);
-	
 }
 
 SCSRenderer.prototype.mergeBuffers = function(src, prev, dest) {
-
+  
   gl.disable(gl.DEPTH_TEST);
   gl.disable(gl.BLEND);
   this.mergeScene.shaderMaterial.uniforms.src.value = src;
   this.mergeScene.shaderMaterial.uniforms.srcdepth.value = src.depthTexture;
   this.mergeScene.shaderMaterial.uniforms.prev.value = prev;
-	this.renderer.render(this.mergeScene, this.quadCamera, dest);
+  this.renderer.render(this.mergeScene, this.quadCamera, dest);
   gl.enable(gl.DEPTH_TEST);
 }
 
 SCSRenderer.prototype.mergeObjectsWithTexture = function(texture, pos, size) {
-	renderer.setRenderTarget(null); // Render to screen
+  renderer.setRenderTarget(null); // Render to screen
   var v = gl.getParameter(gl.VIEWPORT);
-	size = size || [256,0];
+  size = size || [256,0];
   setupWindowViewport(pos, size);
   var newv = gl.getParameter(gl.VIEWPORT);
-
-	gl.depthFunc(gl.ALWAYS);
-	this.mergeObjectsMaterial.uniforms.merged.value = texture;
-	this.mergeObjectsMaterial.uniforms.viewSize.value = [newv[2], newv[3]];
+  
+  gl.depthFunc(gl.ALWAYS);
+  this.mergeObjectsMaterial.uniforms.merged.value = texture;
+  this.mergeObjectsMaterial.uniforms.viewSize.value = [newv[2], newv[3]];
   for (var i=0;i<this.numProducts;i++) {
-		var product = this.products[i];
-		product.intersections.overrideMaterial = this.mergeObjectsMaterial;
-		renderer.render(product.intersections, camera);
-		gl.cullFace(gl.FRONT);
-		product.differences.overrideMaterial = this.mergeObjectsMaterial;
-		renderer.render(product.differences, camera);
-		gl.cullFace(gl.BACK);
-		delete product.intersections.overrideMaterial;
-		delete product.differences.overrideMaterial;
-	}
-	gl.depthFunc(gl.LESS);
+    var product = this.products[i];
+    product.intersections.overrideMaterial = this.mergeObjectsMaterial;
+    renderer.render(product.intersections, camera);
+    if (product.differences) {
+      gl.cullFace(gl.FRONT);
+      product.differences.overrideMaterial = this.mergeObjectsMaterial;
+      renderer.render(product.differences, camera);
+      delete product.differences.overrideMaterial;
+    }
+    gl.cullFace(gl.BACK);
+    delete product.intersections.overrideMaterial;
+  }
+  gl.depthFunc(gl.LESS);
   gl.viewport(v[0], v[1], v[2], v[3]);
 }
 
 SCSRenderer.prototype.render = function (camera) 
 {
-	for (var i=0;i<2;i++) {
+  for (var i=0;i<2;i++) {
     // Init alpha with 1 since we're using alpha to emulate a depth buffer
     gl.clearColor(0,0,0,1);
-		renderer.clearTarget(this.desttextures[0]);
+    renderer.clearTarget(this.desttextures[0]);
     gl.clearColor(0,0,0,0);
-	}
-
-	this.renderer.clearTarget(this.csgTexture, true, false, false);
+  }
+  
+  this.renderer.clearTarget(this.csgTexture, true, false, false);
   for (var i=0;i<this.numProducts;i++) {
-		var product = this.products[i];
-		this.renderConvexIntersections(product, camera, this.csgTexture);
-		this.renderConvexSubtractions(product, camera, this.csgTexture);
-		this.renderClipZBuffer(product, camera, this.csgTexture);
-		this.renderLightingUsingZBuffer(product, camera, this.csgTexture);
-		this.mergeBuffers(this.csgTexture, this.desttextures[i%2], this.desttextures[(i+1)%2]);
-	}
-
-	var currdesttexture = this.numProducts%2;
-//	this.renderer.clearTarget(this.csgTexture, true, true, true);
-
-		//  showRGBTexture(this.desttextures[1], [0,0], [window.innerWidth, window.innerHeight]);
-	if (settings.debug) {
-		showRGBTexture(this.desttextures[currdesttexture], [-256,-256*window.innerHeight/window.innerWidth]);
-	}
-
-	this.mergeObjectsWithTexture(this.desttextures[currdesttexture], [0,0], [window.innerWidth, window.innerHeight]);
-	//	showRGBTexture(scsRenderer.csgTexture, [0,0], [window.innerWidth, window.innerHeight]);
-
+    var product = this.products[i];
+    this.renderConvexIntersections(product, camera, this.csgTexture);
+    this.renderConvexSubtractions(product, camera, this.csgTexture);
+    this.renderClipZBuffer(product, camera, this.csgTexture);
+    this.renderLightingUsingZBuffer(product, camera, this.csgTexture);
+    this.mergeBuffers(this.csgTexture, this.desttextures[i%2], this.desttextures[(i+1)%2]);
+  }
+  
+  var currdesttexture = this.numProducts%2;
+  //	this.renderer.clearTarget(this.csgTexture, true, true, true);
+  
+  //  showRGBTexture(this.desttextures[1], [0,0], [window.innerWidth, window.innerHeight]);
+  if (settings.debug) {
+    showRGBTexture(this.desttextures[currdesttexture], [-256,-256*window.innerHeight/window.innerWidth]);
+  }
+  
+  this.mergeObjectsWithTexture(this.desttextures[currdesttexture], [0,0], [window.innerWidth, window.innerHeight]);
+  //	showRGBTexture(scsRenderer.csgTexture, [0,0], [window.innerWidth, window.innerHeight]);
 };
 
 
