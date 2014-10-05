@@ -52,8 +52,8 @@ void main() {
     a { color: inherit; cursor: pointer; }
     img { display: none; }
     ul { padding: 0 0 0 20px; }
-    h1 { font: bold italic 30px/30px Georgia; text-align: center; }
-    h2 { font: bold italic 17px/17px Georgia; padding-top: 10px; }
+    h1 { font: 30px/30px;  text-align: center; }
+    h2 { font: 17px/17px; padding-top: 10px; }
     small { display: block; font-size: 11px; line-height: 15px; }
     canvas { position: absolute; top: 0; left: 0; }
     #help { position: absolute; top: 0; right: 0; bottom: 0; width: 280px; padding-right: 20px; overflow: auto; }
@@ -68,6 +68,10 @@ void main() {
         Model: <select id="menu" size="1" onchange="loadModel(this.value);">
           <option value="models/csg-logo.json" selected="">Logo</option>
           <option value="models/csg-logo-double.json">Logo double bumpmap</option>
+          <option value="models/difference_cube.json">difference_cube</option>
+          <option value="models/intersection.json">intersection</option>
+          <option value="models/translate.json">translate</option>
+          <option value="models/union.json">union</option>
         </select>
       </tr>
       <tr>
