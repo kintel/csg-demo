@@ -1,74 +1,74 @@
 function SCSRenderer(renderer, scene, lights) {
-	var self = this;
-	this.renderer = renderer;
-	this.scene = scene;
-	this.products = [];
-	this.transparent_objects = new THREE.Scene();
-	lights.forEach(function(light) {
-		self.transparent_objects.add(light.clone());
-	});
+  var self = this;
+  this.renderer = renderer;
+  this.scene = scene;
+  this.products = [];
+  this.transparent_objects = new THREE.Scene();
+  lights.forEach(function(light) {
+    self.transparent_objects.add(light.clone());
+  });
 
-	var transparents;
-	this.numProducts = 0;
-	scene.children.forEach(function(ch) {
-		if (ch.userData.type === 'transparents') {
-			transparents = ch;
-			return;
-		}
-		var product = ch;
-		var intersections, differences;
-		product.children.forEach(function(child) {
-			if (child.userData) {
-				if (child.userData.type === 'intersections') {
-					intersections = child;
-				}
-				else if (child.userData.type === 'differences') {
-					differences = child;
-				}
-			}
-		});
-		if (intersections) {
-			product.intersections = new THREE.Scene();
-			product.intersections.add(intersections);
-			lights.forEach(function(light) {
-				product.intersections.add(light.clone());
-			});
-			product.intersections.numObjects = intersections.children.length;
-		}
-		if (differences) {
-			product.differences = new THREE.Scene();
-			product.differences.objects = differences.children;
-			product.differences.add(differences);
-			lights.forEach(function(light) {
-				product.differences.add(light.clone());
-			});
-		}
-		self.products.push(product);
-		self.numProducts++;
-	});
+  var transparents;
+  this.numProducts = 0;
+  scene.children.forEach(function(ch) {
+    if (ch.userData.type === 'transparents') {
+      transparents = ch;
+      return;
+    }
+    var product = ch;
+    var intersections, differences;
+    product.children.forEach(function(child) {
+      if (child.userData) {
+	if (child.userData.type === 'intersections') {
+	  intersections = child;
+	}
+	else if (child.userData.type === 'differences') {
+	  differences = child;
+	}
+      }
+    });
+    if (intersections) {
+      product.intersections = new THREE.Scene();
+      product.intersections.add(intersections);
+      lights.forEach(function(light) {
+	product.intersections.add(light.clone());
+      });
+      product.intersections.numObjects = intersections.children.length;
+    }
+    if (differences) {
+      product.differences = new THREE.Scene();
+      product.differences.objects = differences.children;
+      product.differences.add(differences);
+      lights.forEach(function(light) {
+	product.differences.add(light.clone());
+      });
+    }
+    self.products.push(product);
+    self.numProducts++;
+  });
 
-	if (transparents) self.transparent_objects.add(transparents);
+  if (transparents) self.transparent_objects.add(transparents);
 
 
   var scsPassShader = {
-		uniforms: {},
+    uniforms: {},
     vertexShader: '\
-		varying vec4 pos;\n\
-		void main() {\n\
-		  vec4 mvPosition;\n\
-	  	mvPosition = modelViewMatrix * vec4( position, 1.0 );\n\
-		  gl_Position = pos = projectionMatrix * mvPosition;\n\
-    }\n',
+varying vec4 pos;\n\
+void main() {\n\
+vec4 mvPosition;\n\
+mvPosition = modelViewMatrix * vec4( position, 1.0 );\n\
+gl_Position = pos = projectionMatrix * mvPosition;\n\
+}\n',
     fragmentShader: '\
-		varying vec4 pos;\n\
-		float calcDepth(vec4 pos) {\n\
-		  return pos.z/pos.w;\n\
-		}\n\
-		void main() {\n\
+varying vec4 pos;\n\
+float calcDepth(vec4 pos) {\n\
+return pos.z/pos.w;\n\
+}\n\
+void main() {\n\
 //      gl_FragColor = vec3(0.0, 0.2, 0.0);\n\
 //      gl_FragColor = vec4(0.0, 0.2, 0.0, gl_FragCoord.z); // Copy depth to .a\n\
-      gl_FragColor = vec4(0.0, 0.0, 0.0, calcDepth(pos)); // Copy calculated depth to .a\n\
-    }\n'
+gl_FragColor = vec4(0.0, 0.0, 0.0, calcDepth(pos)); // Copy calculated depth to .a\n\
+}\n'
   };
 
 	/*
@@ -86,131 +86,131 @@ function SCSRenderer(renderer, scene, lights) {
 	*/
 
   var mergeObjectsShader = {
-		uniforms: {
-			merged: {type: 't'},
-			viewSize: {type: '2f'}
-		},
+    uniforms: {
+      merged: {type: 't'},
+      viewSize: {type: '2f'}
+    },
     vertexShader: '\
-		varying vec4 pos;\n\
-		void main() {\n\
-		  vec4 mvPosition;\n\
-	  	mvPosition = modelViewMatrix * vec4( position, 1.0 );\n\
-		  gl_Position = pos = projectionMatrix * mvPosition;\n\
-    }\n',
+varying vec4 pos;\n\
+void main() {\n\
+vec4 mvPosition;\n\
+mvPosition = modelViewMatrix * vec4( position, 1.0 );\n\
+gl_Position = pos = projectionMatrix * mvPosition;\n\
+}\n',
     fragmentShader: '\
-    uniform sampler2D merged;\n\
-		uniform vec2 viewSize;\n\
-		varying vec4 pos;\n\
-		float calcDepth(vec4 pos) {\n\
-		  return pos.z/pos.w;\n\
-		}\n\
+uniform sampler2D merged;\n\
+uniform vec2 viewSize;\n\
+varying vec4 pos;\n\
+float calcDepth(vec4 pos) {\n\
+return pos.z/pos.w;\n\
+}\n\
 		void main() {\n\
-      vec2 coord = gl_FragCoord.xy / viewSize;\n\
-      vec4 texval = texture2D(merged, coord);\n\
+vec2 coord = gl_FragCoord.xy / viewSize;\n\
+vec4 texval = texture2D(merged, coord);\n\
 //      if (gl_FragCoord.z == texval.a) {\n\
-      if (calcDepth(pos) == texval.a) {\n\
+if (calcDepth(pos) == texval.a) {\n\
 //      if (abs(calcDepth(pos) - texval.a) < 0.0001) {\n\
 //      if (calcDepth(pos) <= texval.a) {\n\
-        gl_FragColor = vec4(texval.rgb, 1);\n\
-		  }\n\
-		  else discard;\n\
-    }\n'
+gl_FragColor = vec4(texval.rgb, 1);\n\
+}\n\
+else discard;\n\
+}\n'
   };
 
   var clipshader = {
-		uniforms: {},
+    uniforms: {},
     vertexShader: '\
-    void main() {\n\
-      gl_Position = vec4(position.xyz, 1);\n\
-    }\n',
+void main() {\n\
+gl_Position = vec4(position.xyz, 1);\n\
+}\n',
     fragmentShader: '\
-    void main() {\n\
-      gl_FragColor = vec4(0.0, 0.2, 0.0, 1.0);\n\
-    }\n'
+void main() {\n\
+gl_FragColor = vec4(0.0, 0.2, 0.0, 1.0);\n\
+}\n'
   };
 
-	var mergeshader = {
-		uniforms: {
-			src: {type: 't'},
-			srcdepth: {type: 't'},
-			prev: {type: 't'}
-		},
-		vertexShader: '\n\
-    varying vec2 coord;\n\
-    void main() {\n\
-      coord = uv.xy;\n\
-      gl_Position = vec4(position.xy, 0, 1);\n\
-    }\n',
-		fragmentShader: '\n\
-    uniform sampler2D src;\n\
-    uniform sampler2D srcdepth;\n\
-    uniform sampler2D prev;\n\
-    varying vec2 coord;\n\
-    void main() {\n\
-      vec4 srcfrag = texture2D(src, coord);\n\
-      vec4 prevfrag = texture2D(prev, coord);\n\
+  var mergeshader = {
+    uniforms: {
+      src: {type: 't'},
+      srcdepth: {type: 't'},
+      prev: {type: 't'}
+    },
+    vertexShader: '\n\
+varying vec2 coord;\n\
+void main() {\n\
+coord = uv.xy;\n\
+gl_Position = vec4(position.xy, 0, 1);\n\
+}\n',
+    fragmentShader: '\n\
+uniform sampler2D src;\n\
+uniform sampler2D srcdepth;\n\
+uniform sampler2D prev;\n\
+varying vec2 coord;\n\
+void main() {\n\
+vec4 srcfrag = texture2D(src, coord);\n\
+vec4 prevfrag = texture2D(prev, coord);\n\
 //      float srcd = texture2D(srcdepth, coord).r;\n\
-      float srcd = srcfrag.a;\n\
+float srcd = srcfrag.a;\n\
 //      gl_FragColor = (srcd <= prevfrag.a) ? vec4(srcfrag.rgb, srcd) : prevfrag;\n\
-      gl_FragColor = (srcd - 0.000001) < prevfrag.a ? vec4(srcfrag.rgb, srcd) : prevfrag;\n\
-    }\n'
+gl_FragColor = (srcd - 0.000001) < prevfrag.a ? vec4(srcfrag.rgb, srcd) : prevfrag;\n\
+}\n'
 	};
 
-	this.scsPassMaterial = new THREE.ShaderMaterial( {
-		blending: THREE.NoBlending,
-		uniforms: scsPassShader.uniforms,
-		vertexShader: scsPassShader.vertexShader,
-		fragmentShader: scsPassShader.fragmentShader
-	} );
-
-	this.mergeObjectsMaterial = new THREE.ShaderMaterial( {
-		uniforms: mergeObjectsShader.uniforms,
-		vertexShader: mergeObjectsShader.vertexShader,
-		fragmentShader: mergeObjectsShader.fragmentShader
-	} );
-
-	this.clipScene = createQuadScene(clipshader);
-	this.mergeScene = createQuadScene(mergeshader);
-	this.quadCamera = new THREE.OrthographicCamera( -1, 1, 1, -1, 0, 1 );
-
-	// Setup two temporary RGBA float textures for accumulating product depths and color buffers
+  this.scsPassMaterial = new THREE.ShaderMaterial( {
+    blending: THREE.NoBlending,
+    uniforms: scsPassShader.uniforms,
+    vertexShader: scsPassShader.vertexShader,
+    fragmentShader: scsPassShader.fragmentShader
+  } );
+  
+  this.mergeObjectsMaterial = new THREE.ShaderMaterial( {
+    uniforms: mergeObjectsShader.uniforms,
+    vertexShader: mergeObjectsShader.vertexShader,
+    fragmentShader: mergeObjectsShader.fragmentShader
+  } );
+  
+  this.clipScene = createQuadScene(clipshader);
+  this.mergeScene = createQuadScene(mergeshader);
+  this.quadCamera = new THREE.OrthographicCamera( -1, 1, 1, -1, 0, 1 );
+  
+  // Setup two temporary RGBA float textures for accumulating product depths and color buffers
   var viewport = gl.getParameter(gl.VIEWPORT);
-	this.desttextures = [];
+  this.desttextures = [];
   for (var i=0;i<2;i++) {
-		this.desttextures[i] = new THREE.WebGLRenderTarget(viewport[2], viewport[3], {
-			minFilter: THREE.NearestFilter,
-			magFilter: THREE.NearestFilter,
-			format: THREE.RGBAFormat,
-			type: THREE.FloatType,
-			depthBuffer: false,
-			stencilBuffer: false
-		});
-	}
-	this.depthTexture = new THREE.DepthTexture(viewport[2], viewport[3], true);
-	
-	this.csgTexture = new THREE.WebGLRenderTarget(viewport[2], viewport[3], {
+    this.desttextures[i] = new THREE.WebGLRenderTarget(viewport[2], viewport[3], {
+      minFilter: THREE.NearestFilter,
+      magFilter: THREE.NearestFilter,
+      format: THREE.RGBAFormat,
+      type: THREE.FloatType,
+      depthBuffer: false,
+      stencilBuffer: false
+    });
+  }
+  this.depthTexture = new THREE.DepthTexture(viewport[2], viewport[3], true);
+  
+  this.csgTexture = new THREE.WebGLRenderTarget(viewport[2], viewport[3], {
     minFilter: THREE.NearestFilter,
     magFilter: THREE.NearestFilter,
-		format: THREE.RGBAFormat,
-		type: THREE.FloatType,
+    format: THREE.RGBAFormat,
+    type: THREE.FloatType,
     depthTexture: this.depthTexture});
 }
 
 SCSRenderer.prototype.renderConvexIntersections = function (product, camera, renderTarget) {
-	product.intersections.overrideMaterial = this.scsPassMaterial;
-//	product.intersections.overrideMaterial = new THREE.MeshNormalMaterial({ color: 0x00ffff });
-	//	
+  product.intersections.overrideMaterial = this.scsPassMaterial;
+  //	product.intersections.overrideMaterial = new THREE.MeshNormalMaterial({ color: 0x00ffff });
+  //	
   // a) Draw the furthest front facing surface into z-buffer.
-	//
+  //
   gl.colorMask(false,true,false,true);
   gl.depthFunc(gl.GREATER);
   gl.disable(gl.BLEND);
   gl.clearDepth(0.0);
-	this.renderer.clearTarget(renderTarget, true, true, true);
-	this.renderer.render(product.intersections, camera, renderTarget);
+  this.renderer.clearTarget(renderTarget, true, true, true);
+  this.renderer.render(product.intersections, camera, renderTarget);
   gl.clearDepth(1.0);
-
-	//	
+  
+  //	
   // b) Count the number of back-facing surfaces behind each pixel.
   // 
   // Count in stencil buffer, don't draw to depth or color buffers
@@ -220,10 +220,10 @@ SCSRenderer.prototype.renderConvexIntersections = function (product, camera, ren
   gl.enable(gl.STENCIL_TEST);
   gl.stencilFunc(gl.ALWAYS,0,-1);
   gl.stencilOp(gl.KEEP,gl.KEEP,gl.INCR);
-	
-	renderer.render(product.intersections, camera, renderTarget);
-	gl.cullFace(gl.BACK);
-
+  
+  renderer.render(product.intersections, camera, renderTarget);
+  gl.cullFace(gl.BACK);
+  
   //
   // c) Reset the z-buffer for pixels where stencil != n
   // FIXME: Also, reset stencil to zero
@@ -234,11 +234,11 @@ SCSRenderer.prototype.renderConvexIntersections = function (product, camera, ren
   gl.stencilFunc(gl.NOTEQUAL,product.intersections.numObjects,-1);
   gl.stencilOp(gl.KEEP,gl.KEEP,gl.KEEP);
   renderer.render(this.clipScene, this.quadCamera, renderTarget);
-	
+  
   gl.disable(gl.STENCIL_TEST);
   gl.colorMask(true, true, true, true);
   gl.depthFunc(gl.LEQUAL);
-	delete product.intersections.overrideMaterial;
+  delete product.intersections.overrideMaterial;
 }
 
 SCSRenderer.prototype.renderConvexSubtractions = function (product, camera, renderTarget)
@@ -467,224 +467,224 @@ var extra_objects_scene;
 
 window.onload = function() {
 	
-	document.body.style.backgroundColor = '#' + $("#bgcolor")[0].color.toString();
+  document.body.style.backgroundColor = '#' + $("#bgcolor")[0].color.toString();
   canvas = document.getElementById('canvas');
-	renderer = new THREE.WebGLRenderer({canvas: canvas, alpha: true});
-	gl = renderer.getContext();
-	renderer.setSize(window.innerWidth, window.innerHeight);
-	
-	depthshader = {
+  renderer = new THREE.WebGLRenderer({canvas: canvas, alpha: true});
+  gl = renderer.getContext();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  
+  depthshader = {
     uniforms: {dtexture: {type: 't'}},
     vertexShader: '\
-		varying vec2 coord;\n\
-		void main() {\n\
-    coord = uv.xy;\n\
-    gl_Position = vec4(position.xy, 0, 1);\n\
-  }\n\
-		',
+varying vec2 coord;\n\
+void main() {\n\
+coord = uv.xy;\n\
+gl_Position = vec4(position.xy, 0, 1);\n\
+}\n\
+',
     fragmentShader: '\
-		uniform sampler2D dtexture;\n\
-		varying vec2 coord;\n\
-		void main() {\n\
-    float z = texture2D(dtexture, coord).r;\n\
-    float n = 0.7;\n\
-    float f = 1.0;\n\
-    float c = (z-n)/(f-n);\n\
-    gl_FragColor.rgba = vec4(vec3(1.0-c), c == 1.0 ? 0.0 : 1.0);\n\
-  }\n'
+uniform sampler2D dtexture;\n\
+varying vec2 coord;\n\
+void main() {\n\
+float z = texture2D(dtexture, coord).r;\n\
+float n = 0.7;\n\
+float f = 1.0;\n\
+float c = (z-n)/(f-n);\n\
+gl_FragColor.rgba = vec4(vec3(1.0-c), c == 1.0 ? 0.0 : 1.0);\n\
+}\n'
 	};
 	
-	texshader = {
+  texshader = {
     uniforms: {texture: {type: 't'}},
     vertexShader: '\
-		varying vec2 coord;\n\
-		void main() {\n\
-    coord = uv.xy;\n\
-    gl_Position = vec4(position.xy, 0, 1);\n\
-  }\n\
-		',
+varying vec2 coord;\n\
+void main() {\n\
+coord = uv.xy;\n\
+gl_Position = vec4(position.xy, 0, 1);\n\
+}\n\
+',
     fragmentShader: '\
-		uniform sampler2D texture;\n\
-		varying vec2 coord;\n\
-		void main() {\n\
-    gl_FragColor = texture2D(texture, coord);\n\
-  }\n'
-	};
+uniform sampler2D texture;\n\
+varying vec2 coord;\n\
+void main() {\n\
+gl_FragColor = texture2D(texture, coord);\n\
+}\n'
+  };
 	
-	alphashader = {
-		uniforms: {texture: {type: 't'}},
-		vertexShader: '\n\
-		varying vec2 coord;\n\
-		void main() {\n\
-    coord = uv.xy;\n\
-    gl_Position = vec4(position.xy, 0, 1);\n\
-  }\n',
-		fragmentShader: '\n\
-		uniform sampler2D texture;\n\
-		varying vec2 coord;\n\
-		void main() {\n\
-    float z = texture2D(texture, coord).a;\n\
-    float n = 0.0;\n\
-    float f = 1.0;\n\
-    float c = (z-n)/(f-n);\n\
-    gl_FragColor.rgba = vec4(vec3(1.0-c), c == 1.0 ? 0.0 : 1.0);\n\
-  }\n'
-	};
+  alphashader = {
+    uniforms: {texture: {type: 't'}},
+    vertexShader: '\n\
+varying vec2 coord;\n\
+void main() {\n\
+coord = uv.xy;\n\
+gl_Position = vec4(position.xy, 0, 1);\n\
+}\n',
+    fragmentShader: '\n\
+uniform sampler2D texture;\n\
+varying vec2 coord;\n\
+void main() {\n\
+float z = texture2D(texture, coord).a;\n\
+float n = 0.0;\n\
+float f = 1.0;\n\
+float c = (z-n)/(f-n);\n\
+gl_FragColor.rgba = vec4(vec3(1.0-c), c == 1.0 ? 0.0 : 1.0);\n\
+}\n'
+  };
+  
+  texrgbshader = {
+    uniforms: {texture: {type: 't'}},
+    vertexShader: '\n\
+varying vec2 coord;\n\
+void main() {\n\
+coord = uv.xy;\n\
+gl_Position = vec4(position.xy, 0, 1);\n\
+}\n',
+    fragmentShader: '\n\
+uniform sampler2D texture;\n\
+varying vec2 coord;\n\
+void main() {\n\
+gl_FragColor.rgb = texture2D(texture, coord).rgb;\n\
+}\n'
+  };
+  
+  stencilshader = {
+    uniforms: {col: {type: '3f'}},
+    vertexShader: '\n\
+uniform vec3 col;\n\
+void main() {\n\
+gl_Position = vec4(position.xy, 0, 1);\n\
+}\n\
+',
+    fragmentShader: '\n\
+uniform vec3 col;\n\
+void main() {\n\
+gl_FragColor = vec4(col, 1);\n\
+}\n\
+'};
 	
-	texrgbshader = {
-		uniforms: {texture: {type: 't'}},
-		vertexShader: '\n\
-		varying vec2 coord;\n\
-		void main() {\n\
-    coord = uv.xy;\n\
-    gl_Position = vec4(position.xy, 0, 1);\n\
-  }\n',
-		fragmentShader: '\n\
-		uniform sampler2D texture;\n\
-		varying vec2 coord;\n\
-		void main() {\n\
-    gl_FragColor.rgb = texture2D(texture, coord).rgb;\n\
-  }\n'
-	};
-	
-	stencilshader = {
-		uniforms: {col: {type: '3f'}},
-		vertexShader: '\n\
-		uniform vec3 col;\n\
-		void main() {\n\
-    gl_Position = vec4(position.xy, 0, 1);\n\
-  }\n\
-		',
-		fragmentShader: '\n\
-		uniform vec3 col;\n\
-		void main() {\n\
-    gl_FragColor = vec4(col, 1);\n\
-  }\n\
-		'};
-	
-	texScene = createQuadScene(texshader);
-	texRgbScene = createQuadScene(texrgbshader);
-	alphaScene = createQuadScene(alphashader);
-	depthScene = createQuadScene(depthshader);
-	stencilScene = createQuadScene(stencilshader);
-	quadCamera = new THREE.OrthographicCamera( -1, 1, 1, -1, 0, 1 );
-	
-	windowTexture = new THREE.WebGLRenderTarget(256, 256*window.innerHeight/window.innerWidth, {
-		minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter});
-	depthComposer = new THREE.EffectComposer(renderer, windowTexture);
-	showDepthPass = new THREE.ShaderPass(depthshader);
-	showDepthPass.renderToScreen = true;
-	showDepthPass.needsSwap = false;
-	depthComposer.addPass(showDepthPass);
-	
-	//var mainscene = createScene();
-	//var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.5, 100);
-	//setup(mainscene, camera);
-	extra_objects_scene = createTestScene();
+  texScene = createQuadScene(texshader);
+  texRgbScene = createQuadScene(texrgbshader);
+  alphaScene = createQuadScene(alphashader);
+  depthScene = createQuadScene(depthshader);
+  stencilScene = createQuadScene(stencilshader);
+  quadCamera = new THREE.OrthographicCamera( -1, 1, 1, -1, 0, 1 );
+  
+  windowTexture = new THREE.WebGLRenderTarget(256, 256*window.innerHeight/window.innerWidth, {
+    minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter});
+  depthComposer = new THREE.EffectComposer(renderer, windowTexture);
+  showDepthPass = new THREE.ShaderPass(depthshader);
+  showDepthPass.renderToScreen = true;
+  showDepthPass.needsSwap = false;
+  depthComposer.addPass(showDepthPass);
+  
+  //var mainscene = createScene();
+  //var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.5, 100);
+  //setup(mainscene, camera);
+  extra_objects_scene = createTestScene();
 
-	loadModel(document.getElementById('menu').value);
+  loadModel(document.getElementById('menu').value);
 }
 
 function createQuadScene(shader) {
-	var quadMaterial = new THREE.ShaderMaterial( {
-		uniforms: shader.uniforms,
-		vertexShader: shader.vertexShader,
-		fragmentShader: shader.fragmentShader
-	} );
-	var quadScene = new THREE.Scene();
-	var geom = new THREE.PlaneBufferGeometry( 2, 2 );
-	for (var i=0;i<geom.attributes.position.array.length;i+=3) {
-		geom.attributes.position.array[i+2] = 1;
-	}
-	quadScene.add(new THREE.Mesh( geom, quadMaterial ))
-	quadScene.shaderMaterial = quadMaterial;
-	return quadScene;
+  var quadMaterial = new THREE.ShaderMaterial( {
+    uniforms: shader.uniforms,
+    vertexShader: shader.vertexShader,
+    fragmentShader: shader.fragmentShader
+  } );
+  var quadScene = new THREE.Scene();
+  var geom = new THREE.PlaneBufferGeometry( 2, 2 );
+  for (var i=0;i<geom.attributes.position.array.length;i+=3) {
+    geom.attributes.position.array[i+2] = 1;
+  }
+  quadScene.add(new THREE.Mesh( geom, quadMaterial ))
+  quadScene.shaderMaterial = quadMaterial;
+  return quadScene;
 }
 
 function loaderFinished(result) {
-	var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.5, 1000);
+  var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.5, 1000);
 
-//	var mainscene = createScene();
-//	setup(mainscene, camera);
-	setup(result.scene, camera);
+  //	var mainscene = createScene();
+  //	setup(mainscene, camera);
+  setup(result.scene, camera);
 
   render();
 }
 
 function createScene() {
 
-	// create a point light
-	var pointLight = new THREE.PointLight(0xFFFFFF);
-	pointLight.position.x = 10;
-	pointLight.position.y = 50;
-	pointLight.position.z = 130;
+  // create a point light
+  var pointLight = new THREE.PointLight(0xFFFFFF);
+  pointLight.position.x = 10;
+  pointLight.position.y = 50;
+  pointLight.position.z = 130;
 
-	var product = {};
-	product.intersections = [];
-	product.differences = [];
-	product.intersections[0] = new THREE.Mesh(new THREE.BoxGeometry(2,2,2), material);
-	product.intersections[1] = new THREE.Mesh(new THREE.SphereGeometry(1.4, 16, 16), material);
-	product.differences[0] = new THREE.Mesh(new THREE.BoxGeometry(1,1,4), material);
-	products.push(product);
-	
-	// Create separate scenes for intersections and differences
-	//	products.forEach(function (product) {
-	var scene = new THREE.Scene();
+  var product = {};
+  product.intersections = [];
+  product.differences = [];
+  product.intersections[0] = new THREE.Mesh(new THREE.BoxGeometry(2,2,2), material);
+  product.intersections[1] = new THREE.Mesh(new THREE.SphereGeometry(1.4, 16, 16), material);
+  product.differences[0] = new THREE.Mesh(new THREE.BoxGeometry(1,1,4), material);
+  products.push(product);
+  
+  // Create separate scenes for intersections and differences
+  //	products.forEach(function (product) {
+  var scene = new THREE.Scene();
 
-	var productnode = new THREE.Object3D();
-	
-	var intersections = new THREE.Object3D();
-	product.intersections.forEach(function(intersection) {
-		intersections.add(intersection);
-	});
-	intersections.numObjects = product.intersections.length;
-	productnode.add(intersections);
+  var productnode = new THREE.Object3D();
+  
+  var intersections = new THREE.Object3D();
+  product.intersections.forEach(function(intersection) {
+    intersections.add(intersection);
+  });
+  intersections.numObjects = product.intersections.length;
+  productnode.add(intersections);
 
-	var differences = new THREE.Object3D();
-	product.differences.forEach(function(difference) {
-		differences.add(difference);
-	});
-	differences.numObjects = product.differences.length;
-	productnode.add(differences);
+  var differences = new THREE.Object3D();
+  product.differences.forEach(function(difference) {
+    differences.add(difference);
+  });
+  differences.numObjects = product.differences.length;
+  productnode.add(differences);
 
-	scene.add(productnode);
+  scene.add(productnode);
 
-	scene.add(pointLight.clone());
-//	});
+  scene.add(pointLight.clone());
+  //	});
 
-	return scene;
+  return scene;
 }
 
 function setup(mainscene, maincamera) {
 
-	// create a point light
-	var pointLight = new THREE.PointLight(0xFFFFFF);
-	pointLight.position.x = 10;
-	pointLight.position.y = 50;
-	pointLight.position.z = 130;
-
-	var light2 = new THREE.DirectionalLight(0xFFFFFF);
-	light2.position.x = 100;
-	light2.position.y = -50;
-	light2.position.z = -130;
-	light2.target.x = 0;
-	light2.target.y = 0;
-	light2.target.z = 0;
-
-	camera = maincamera;
-	controls = new THREE.TrackballControls(camera, canvas);
-	controls.rotateSpeed = 3.0;
-	controls.panSpeed = 2.0;
-	controls.staticMoving = true;
-	controls.dynamicDampingFactor = 0.1;
-
-	THREEx.WindowResize(renderer, camera);
-	camera.position.z = 50;
-	
-	scsRenderer = new SCSRenderer(renderer, mainscene, [pointLight, light2]);
-
-	animate();
-	controls.addEventListener('change', render);
+  // create a point light
+  var pointLight = new THREE.PointLight(0xFFFFFF);
+  pointLight.position.x = 10;
+  pointLight.position.y = 50;
+  pointLight.position.z = 130;
+  
+  var light2 = new THREE.DirectionalLight(0xFFFFFF);
+  light2.position.x = 100;
+  light2.position.y = -50;
+  light2.position.z = -130;
+  light2.target.x = 0;
+  light2.target.y = 0;
+  light2.target.z = 0;
+  
+  camera = maincamera;
+  controls = new THREE.TrackballControls(camera, canvas);
+  controls.rotateSpeed = 3.0;
+  controls.panSpeed = 2.0;
+  controls.staticMoving = true;
+  controls.dynamicDampingFactor = 0.1;
+  
+  THREEx.WindowResize(renderer, camera);
+  camera.position.z = 50;
+  
+  scsRenderer = new SCSRenderer(renderer, mainscene, [pointLight, light2]);
+  
+  animate();
+  controls.addEventListener('change', render);
 }
 
 function setupWindowViewport(pos, size) {
@@ -701,14 +701,14 @@ function setupWindowViewport(pos, size) {
  Renders the given texture without alpha in a window for debugging
 */
 function showRGBTexture(texture, pos, size) {
-	renderer.setRenderTarget(null); // Render to screen
+  renderer.setRenderTarget(null); // Render to screen
   var v = gl.getParameter(gl.VIEWPORT);
   setupWindowViewport(pos, size);
 	
   gl.disable(gl.DEPTH_TEST);
 	
   texRgbScene.shaderMaterial.uniforms.texture.value = texture;
-	renderer.render(texRgbScene, quadCamera);
+  renderer.render(texRgbScene, quadCamera);
 	
   gl.enable(gl.DEPTH_TEST);
   gl.viewport(v[0], v[1], v[2], v[3]);
@@ -718,16 +718,16 @@ function showRGBTexture(texture, pos, size) {
  Renders the given texture in a window for debugging
 */
 function showTexture(texture, pos, size) {
-	renderer.setRenderTarget(null); // Render to screen
+  renderer.setRenderTarget(null); // Render to screen
   var v = gl.getParameter(gl.VIEWPORT);
   setupWindowViewport(pos, size);
-	
+  
   gl.disable(gl.DEPTH_TEST);
   gl.enable(gl.BLEND);
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 	
   texScene.shaderMaterial.uniforms.texture.value = texture;
-	renderer.render(texScene, quadCamera);
+  renderer.render(texScene, quadCamera);
 	
   gl.disable(gl.BLEND);
   gl.enable(gl.DEPTH_TEST);
@@ -738,17 +738,17 @@ function showTexture(texture, pos, size) {
  Renders the alpha component of the given texture as visible pixels for debugging.
 */
 function showAlpha(texture, pos, size) {
-	renderer.setRenderTarget(null); // Render to screen
+  renderer.setRenderTarget(null); // Render to screen
   var v = gl.getParameter(gl.VIEWPORT);
   setupWindowViewport(pos, size);
-	
+  
   gl.disable(gl.DEPTH_TEST);
   gl.depthMask(false);
 	
   gl.enable(gl.BLEND);
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
   alphaScene.shaderMaterial.uniforms.texture.value = texture;
-	renderer.render(alphaScene, quadCamera);
+  renderer.render(alphaScene, quadCamera);
   gl.disable(gl.BLEND);
 	
   gl.depthMask(true);
@@ -761,16 +761,16 @@ function showAlpha(texture, pos, size) {
  Znear is white, Zfar is black
 */
 function showDepthBuffer(texture, pos, size) {
-	renderer.setRenderTarget(null); // Render to screen
+  renderer.setRenderTarget(null); // Render to screen
   var v = gl.getParameter(gl.VIEWPORT);
   setupWindowViewport(pos, size);
-
+  
   gl.disable(gl.DEPTH_TEST);
   gl.depthMask(false);
   gl.enable(gl.BLEND);
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-	
-	depthScene.shaderMaterial.uniforms.dtexture.value = texture;
+  
+  depthScene.shaderMaterial.uniforms.dtexture.value = texture;
   renderer.render(depthScene, quadCamera);
 	
   gl.disable(gl.BLEND);
@@ -787,12 +787,12 @@ function showDepthBuffer(texture, pos, size) {
  The render target's color buffer will be overwritten
 */
 function showStencilBuffer(target, pos, size) {
-	renderer.setRenderTarget(null); // Render to screen
+  renderer.setRenderTarget(null); // Render to screen
   var v = gl.getParameter(gl.VIEWPORT);
   setupWindowViewport(pos, size);
-
+  
   var colors = [[1,0,0],[0,1,0],[0,0,1],[1,1,0]];
-
+  
   gl.depthMask(false);
   renderer.clearTarget(target, true, true, false);
   gl.disable(gl.DEPTH_TEST);
@@ -801,26 +801,26 @@ function showStencilBuffer(target, pos, size) {
   for (var i=0;i<colors.length;i++) {
     gl.stencilFunc(gl.EQUAL, i+1, -1);
     stencilScene.shaderMaterial.uniforms.col.value = colors[i%colors.length];
-		renderer.render(stencilScene, quadCamera, target);
+    renderer.render(stencilScene, quadCamera, target);
   }
-	
+  
   gl.disable(gl.STENCIL_TEST);
-	gl.depthMask(true);
+  gl.depthMask(true);
   gl.enable(gl.BLEND);
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-
-	texScene.shaderMaterial.uniforms.texture.value = target;
+  
+  texScene.shaderMaterial.uniforms.texture.value = target;
   renderer.render(texScene, quadCamera);
-
+  
   gl.disable(gl.BLEND);
   gl.enable(gl.DEPTH_TEST);
-
+  
   gl.viewport(v[0], v[1], v[2], v[3]);
 }
 
 function onWindowResize() {
-    controls.handleResize();
-    render();
+  controls.handleResize();
+  render();
 }
 
 function animate() {
@@ -829,54 +829,54 @@ function animate() {
 }
 
 function createTestScene() {
-	var scene = new THREE.Scene;
-	var pointLight = new THREE.PointLight(0xFFFFFF);
-	pointLight.position.x = 10;
-	pointLight.position.y = 50;
-	pointLight.position.z = 130;
-	scene.add(pointLight);
-	var material = new THREE.MeshLambertMaterial({ color: 0x00ff00 });
-	var boxmesh = new THREE.Mesh(new THREE.BoxGeometry(100,7,7), material);
-	boxmesh.translateX(15);
-	boxmesh.translateY(15);
-	scene.add(boxmesh);
-	return scene;
+  var scene = new THREE.Scene;
+  var pointLight = new THREE.PointLight(0xFFFFFF);
+  pointLight.position.x = 10;
+  pointLight.position.y = 50;
+  pointLight.position.z = 130;
+  scene.add(pointLight);
+  var material = new THREE.MeshLambertMaterial({ color: 0x00ff00 });
+  var boxmesh = new THREE.Mesh(new THREE.BoxGeometry(100,7,7), material);
+  boxmesh.translateX(15);
+  boxmesh.translateY(15);
+  scene.add(boxmesh);
+  return scene;
 }
 
 function render() {
 
-	renderer.setRenderTarget(null); // Render to screen
+  renderer.setRenderTarget(null); // Render to screen
   renderer.autoClear = false;
-	setupWindowViewport([0,0], [window.innerWidth, window.innerHeight]);
+  setupWindowViewport([0,0], [window.innerWidth, window.innerHeight]);
   var v = gl.getParameter(gl.VIEWPORT);
-	gl.clearColor(0.0,0,0,0);
-	renderer.clear();
-
+  gl.clearColor(0.0,0,0,0);
+  renderer.clear();
+  
   scsRenderer.render(camera);
-
-	if (settings.extraObjects) {
-		renderer.render(extra_objects_scene, camera);
-	}
-	renderer.render(scsRenderer.transparent_objects, camera);
-
-	if (settings.debug) {
-		// Show texture in a window
-		showRGBTexture(scsRenderer.csgTexture, [0, 512*gl.canvas.height/gl.canvas.width]);
-		
-		// Render depth buffer in a window for debugging
-		showDepthBuffer(scsRenderer.depthTexture, [0,0]);
-		showAlpha(scsRenderer.csgTexture, [100,0]);
-		
-		showAlpha(scsRenderer.desttextures[0], [0,-256*gl.canvas.height/gl.canvas.width]);
-		showAlpha(scsRenderer.desttextures[1], [100,-256*gl.canvas.height/gl.canvas.width]);
-		
-		// Render stencil buffer in a window for debugging
-		showStencilBuffer(scsRenderer.csgTexture, [0,256*gl.canvas.height/gl.canvas.width]);
-	}
+  
+  if (settings.extraObjects) {
+    renderer.render(extra_objects_scene, camera);
+  }
+  renderer.render(scsRenderer.transparent_objects, camera);
+  
+  if (settings.debug) {
+    // Show texture in a window
+    showRGBTexture(scsRenderer.csgTexture, [0, 512*gl.canvas.height/gl.canvas.width]);
+    
+    // Render depth buffer in a window for debugging
+    showDepthBuffer(scsRenderer.depthTexture, [0,0]);
+    showAlpha(scsRenderer.csgTexture, [100,0]);
+    
+    showAlpha(scsRenderer.desttextures[0], [0,-256*gl.canvas.height/gl.canvas.width]);
+    showAlpha(scsRenderer.desttextures[1], [100,-256*gl.canvas.height/gl.canvas.width]);
+    
+    // Render stencil buffer in a window for debugging
+    showStencilBuffer(scsRenderer.csgTexture, [0,256*gl.canvas.height/gl.canvas.width]);
+  }
 }
 
 function loadModel(filename) {
-	console.log('loading ' + filename + '...');
-	var loader = new THREE.SceneLoader();
-	loader.load(filename, loaderFinished);
+  console.log('loading ' + filename + '...');
+  var loader = new THREE.SceneLoader();
+  loader.load(filename, loaderFinished);
 }
