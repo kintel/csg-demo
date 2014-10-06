@@ -64,7 +64,7 @@ void main() {
   <div id="help">
     <h1>WebGL CSG Demo</h1>
     <table>
-      <tr>
+      <tr><td>
         Model: <select id="menu" size="1" onchange="loadModel(this.value);">
           <option value="models/csg-logo.json" selected="">Logo</option>
           <option value="models/csg-logo-double.json">Logo double bumpmap</option>
@@ -72,19 +72,19 @@ void main() {
           <option value="models/intersection.json">intersection</option>
           <option value="models/translate.json">translate</option>
           <option value="models/union.json">union</option>
-        </select>
+        </select></td>
       </tr>
-      <tr>
+      <tr><td>
         Debug: 
-        <input id="debug" type="checkbox" onchange="settings.debug = this.checked; console.log('Debug: ' + settings.debug);"/>
+        <input id="debug" type="checkbox" onchange="settings.debug = this.checked; console.log('Debug: ' + settings.debug);"/></td>
         </tr>
-      <tr>
+      <tr><td>
         Extra objects: 
         <input id="extra_objects" type="checkbox" onchange="settings.extraObjects = this.checked; console.log('Extra objects: ' + settings.extraObjects);"/>
-        </tr>
-      <tr>
+        </td></tr>
+      <tr><td>
         Background color: <input id="bgcolor" class="color" onchange="document.body.style.backgroundColor = '#' + this.color.toString()">
-        </tr>
+        </td></tr>
     </table>
  </div>
 
