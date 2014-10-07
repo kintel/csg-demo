@@ -72,6 +72,12 @@ void main() {
           <option value="models/intersection.json">intersection</option>
           <option value="models/translate.json">translate</option>
           <option value="models/union.json">union</option>
+          <option value="models/surface.json">surface</option>
+          <option value="models/text_on_cube.json">text_on_cube</option>
+          <option value="models/logo_and_text.json">logo_and_text</option>
+          <option value="models/fan_view.json">fan_view</option>
+          <option value="models/out.json">out</option>
+          <option value="models/tree.json">tree</option>
         </select></td>
       </tr>
       <tr><td>
@@ -81,6 +87,12 @@ void main() {
       <tr><td>
         Extra objects: 
         <input id="extra_objects" type="checkbox" onchange="settings.extraObjects = this.checked; console.log('Extra objects: ' + settings.extraObjects);"/>
+        </td></tr>
+      <tr><td>
+        Renderer: <select id="renderermenu" size="1" onchange="applySettings(this.value);">
+          <option value="{realZBuffer: true}" selected="">Real Z Buffer</option>
+          <option value="{realZBuffer: true, optimizeMerges: true}">Real Z Buffer + Optimize Merges</option>
+        </select>
         </td></tr>
       <tr><td>
         Background color: <input id="bgcolor" class="color" onchange="document.body.style.backgroundColor = '#' + this.color.toString()">

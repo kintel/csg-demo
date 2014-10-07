@@ -138,8 +138,8 @@ gl_FragColor = vec4(0.0, 0.2, 0.0, 1.0);\n\
     vertexShader: '\n\
 varying vec2 coord;\n\
 void main() {\n\
-coord = uv.xy;\n\
-gl_Position = vec4(position.xy, 0, 1);\n\
+  coord = uv.xy;\n\
+  gl_Position = vec4(position.xy, 0, 1);\n\
 }\n',
     fragmentShader: '\n\
 uniform sampler2D src;\n\
@@ -147,12 +147,12 @@ uniform sampler2D srcdepth;\n\
 uniform sampler2D prev;\n\
 varying vec2 coord;\n\
 void main() {\n\
-vec4 srcfrag = texture2D(src, coord);\n\
-vec4 prevfrag = texture2D(prev, coord);\n\
-//      float srcd = texture2D(srcdepth, coord).r;\n\
-float srcd = srcfrag.a;\n\
-//      gl_FragColor = (srcd <= prevfrag.a) ? vec4(srcfrag.rgb, srcd) : prevfrag;\n\
-gl_FragColor = (srcd - 0.000001) < prevfrag.a ? vec4(srcfrag.rgb, srcd) : prevfrag;\n\
+  vec4 srcfrag = texture2D(src, coord);\n\
+  vec4 prevfrag = texture2D(prev, coord);\n\
+  // float srcd = texture2D(srcdepth, coord).r;\n\
+  float srcd = srcfrag.a;\n\
+  // gl_FragColor = (srcd <= prevfrag.a) ? vec4(srcfrag.rgb, srcd) : prevfrag;\n\
+  gl_FragColor = (srcd - 0.000001) < prevfrag.a ? vec4(srcfrag.rgb, srcd) : prevfrag;\n\
 }\n'
 	};
 
@@ -196,15 +196,19 @@ gl_FragColor = (srcd - 0.000001) < prevfrag.a ? vec4(srcfrag.rgb, srcd) : prevfr
     depthTexture: this.depthTexture});
 }
 
+/*!
+  Renders the intersections of a product into the depth buffer of the given renderTarget.
+  The renderTarget needs to be a float texture.
+  The result is a depth buffer, as well as a "synthetic" depth buffer encoded into
+  the alpha channel of the renderTarget.
+*/
 SCSRenderer.prototype.renderConvexIntersections = function (product, camera, renderTarget) {
   product.intersections.overrideMaterial = this.scsPassMaterial;
-  //	product.intersections.overrideMaterial = new THREE.MeshNormalMaterial({ color: 0x00ffff });
   //	
   // a) Draw the furthest front facing surface into z-buffer.
   //
-  gl.colorMask(false,true,false,true);
+  gl.colorMask(false,false,false,true);
   gl.depthFunc(gl.GREATER);
-  gl.disable(gl.BLEND);
   gl.clearDepth(0.0);
   this.renderer.clearTarget(renderTarget, true, true, true);
   this.renderer.render(product.intersections, camera, renderTarget);
@@ -241,10 +245,42 @@ SCSRenderer.prototype.renderConvexIntersections = function (product, camera, ren
   delete product.intersections.overrideMaterial;
 }
 
+SCSRenderer.prototype.renderSceneToFramebuffer = function(scene, camera, pos, size) {
+  renderer.setRenderTarget(null); // Render to screen
+  // FIXME: manage viewport properly somewhere else
+  var v = gl.getParameter(gl.VIEWPORT);
+  size = size || [256,0];
+  setupWindowViewport(pos, size);
+  var newv = gl.getParameter(gl.VIEWPORT);
+  this.renderer.render(scene, camera);
+  gl.viewport(v[0], v[1], v[2], v[3]);
+}
+
+SCSRenderer.prototype.renderSceneDepthToTexture = function (scene, renderTarget, camera) {
+  scene.overrideMaterial = this.scsPassMaterial;
+
+  gl.colorMask(false,false,false,true);
+  // We need to clear alpha to 1 for synthetic Z buffer
+  // This is not necessary when we render multiple intersections since we 
+  // manually reset the unused z buffer to 1 in that case
+  gl.clearColor(0,0,0,1);
+  this.renderer.clearTarget(renderTarget, true, true, true);
+  this.renderer.render(scene, camera, renderTarget);
+  gl.clearColor(0,0,0,0);
+
+  gl.colorMask(true, true, true, true);
+  delete scene.overrideMaterial;
+}
+
+/*
+  Renders the subtractions of a procuct into the renderTarget.
+  The rendertarget is assumed to have an attached depth buffer containing
+  the intersections of the product.
+  The result is still a depth buffer as well as a "synthetic" depth buffer encoded
+  into the alpha channel of the renderTarget
+*/
 SCSRenderer.prototype.renderConvexSubtractions = function (product, camera, renderTarget)
 {
-  if (!product.differences) return;
-  
   product.differences.overrideMaterial = this.scsPassMaterial;
   
   renderer.clearTarget(renderTarget, false, false, true);
@@ -299,6 +335,12 @@ SCSRenderer.prototype.renderConvexSubtractions = function (product, camera, rend
   delete product.differences.overrideMaterial;
 };
 
+
+/*!
+  Cuts out areas where subtracted parts of the product caused transparent ares.
+  The result is still a depth buffer as well as a "synthetic" depth buffer encoded
+  into the alpha channel of the renderTarget
+*/
 SCSRenderer.prototype.renderClipZBuffer = function (product, camera, renderTarget)
 {
   // FIXME: Do we need to render this when we have no subtractions?
@@ -339,7 +381,13 @@ SCSRenderer.prototype.renderClipZBuffer = function (product, camera, renderTarge
 
 /*!
  Use the current z buffer for depth equality test of incoming fragments.
- The z buffer should represent a merged depth buffer
+ The z buffer should represent a merged depth buffer.
+
+ Uses real shader materials, but masks away the alpha channel as we're using it 
+ to store our synthetic depth buffer.
+
+ The result is a correct color channel for the product. The depth
+ buffer and synthetic depth buffer stays unchanged.
 */
 SCSRenderer.prototype.renderLightingUsingZBuffer = function(product, camera, renderTarget) {
   gl.depthFunc(gl.EQUAL);
@@ -354,6 +402,15 @@ SCSRenderer.prototype.renderLightingUsingZBuffer = function(product, camera, ren
   gl.depthFunc(gl.LEQUAL);
 }
 
+/*!
+  Merges a renderTarget and a previously merged buffer into a destination buffer.
+
+  renderTarget: float RGBA + depth attachment (A is synthetic depth)
+  prev/dest: float RGBA (A is synthetic depth)
+
+  Since we use the alpha channel as a synthetic depth buffer, we need
+  float textures for all buffers.
+*/
 SCSRenderer.prototype.mergeBuffers = function(src, prev, dest) {
   
   gl.disable(gl.DEPTH_TEST);
@@ -365,6 +422,14 @@ SCSRenderer.prototype.mergeBuffers = function(src, prev, dest) {
   gl.enable(gl.DEPTH_TEST);
 }
 
+/*!
+  Takes a merged color buffer with a synthetic depth buffer encoded
+  into the alpha channel and renders into the framebuffer, providing actual Z
+  values from all products.
+
+  This is necessary to enable rendering of other primitives into the
+  scene later on.
+*/
 SCSRenderer.prototype.mergeObjectsWithTexture = function(texture, pos, size) {
   renderer.setRenderTarget(null); // Render to screen
   var v = gl.getParameter(gl.VIEWPORT);
@@ -392,8 +457,90 @@ SCSRenderer.prototype.mergeObjectsWithTexture = function(texture, pos, size) {
   gl.viewport(v[0], v[1], v[2], v[3]);
 }
 
-SCSRenderer.prototype.render = function (camera) 
+SCSRenderer.prototype.mergeProductWithTexture = function(product, texture, pos, size) {
+  renderer.setRenderTarget(null); // Render to screen
+  var v = gl.getParameter(gl.VIEWPORT);
+  size = size || [256,0];
+  setupWindowViewport(pos, size);
+  var newv = gl.getParameter(gl.VIEWPORT);
+  
+  this.mergeObjectsMaterial.uniforms.merged.value = texture;
+  this.mergeObjectsMaterial.uniforms.viewSize.value = [newv[2], newv[3]];
+  product.intersections.overrideMaterial = this.mergeObjectsMaterial;
+  renderer.render(product.intersections, camera);
+  if (product.differences) {
+    gl.cullFace(gl.FRONT);
+    product.differences.overrideMaterial = this.mergeObjectsMaterial;
+    renderer.render(product.differences, camera);
+    delete product.differences.overrideMaterial;
+  }
+  gl.cullFace(gl.BACK);
+  delete product.intersections.overrideMaterial;
+  gl.viewport(v[0], v[1], v[2], v[3]);
+}
+
+SCSRenderer.prototype.render = function(camera, options) 
 {
+  if (options.realZBuffer) {
+    this.renderWithRealZBuffer(camera, options);
+  }
+  else {
+    console.log("No matching rendering algorithm found");
+  }
+}
+
+SCSRenderer.prototype.renderWithRealZBuffer = function(camera, options) 
+{
+  if (options.optimizeMerges) {
+    this.renderWithOptimizeMerges(camera);
+  }
+  else {
+    this.renderWithRealZBufferClassic(camera);
+  }
+}
+
+SCSRenderer.prototype.renderProductToTexture = function(product, texture, camera) 
+{
+  if (product.intersections.numObjects > 1) {
+    this.renderConvexIntersections(product, camera, texture);
+  }
+  else {
+    // Optimization: Just render the object depth without clipping or stencils
+    this.renderSceneDepthToTexture(product.intersections, texture, camera);
+  }
+  if (product.differences) { // Skip if we only have positives
+    this.renderConvexSubtractions(product, camera, texture);
+    this.renderClipZBuffer(product, camera, texture);
+  }
+  this.renderLightingUsingZBuffer(product, camera, texture);
+}
+
+SCSRenderer.prototype.renderWithOptimizeMerges = function(camera, options) 
+{
+  // FIXME: Only if necessary
+  for (var i=0;i<2;i++) {
+    // Init alpha with 1 since we're using alpha to emulate a depth buffer
+    gl.clearColor(0,0,0,1);
+    renderer.clearTarget(this.desttextures[0]);
+    gl.clearColor(0,0,0,0);
+  }
+  
+  this.renderer.clearTarget(this.csgTexture, true, false, false);
+  for (var i=0;i<this.numProducts;i++) {
+    var product = this.products[i]
+    if (!product.differences && product.intersections.numObjects === 1) {
+      this.renderSceneToFramebuffer(product.intersections, camera, [0,0], [window.innerWidth, window.innerHeight]);
+    }
+    else {
+      this.renderProductToTexture(product, this.csgTexture, camera)
+      this.mergeProductWithTexture(product, this.csgTexture, [0,0], [window.innerWidth, window.innerHeight]);
+    }
+  }
+}
+
+SCSRenderer.prototype.renderWithRealZBufferClassic = function(camera, options) 
+{
+  // FIXME: Only if necessary
   for (var i=0;i<2;i++) {
     // Init alpha with 1 since we're using alpha to emulate a depth buffer
     gl.clearColor(0,0,0,1);
@@ -404,10 +551,7 @@ SCSRenderer.prototype.render = function (camera)
   this.renderer.clearTarget(this.csgTexture, true, false, false);
   for (var i=0;i<this.numProducts;i++) {
     var product = this.products[i];
-    this.renderConvexIntersections(product, camera, this.csgTexture);
-    this.renderConvexSubtractions(product, camera, this.csgTexture);
-    this.renderClipZBuffer(product, camera, this.csgTexture);
-    this.renderLightingUsingZBuffer(product, camera, this.csgTexture);
+    this.renderProductToTexture(product, this.csgTexture, camera)
     this.mergeBuffers(this.csgTexture, this.desttextures[i%2], this.desttextures[(i+1)%2]);
   }
   
@@ -417,10 +561,14 @@ SCSRenderer.prototype.render = function (camera)
   //  showRGBTexture(this.desttextures[1], [0,0], [window.innerWidth, window.innerHeight]);
   if (settings.debug) {
     showRGBTexture(this.desttextures[currdesttexture], [-256,-256*window.innerHeight/window.innerWidth]);
+    showRGBTexture(this.desttextures[(currdesttexture+1)%2], [-256,-512*window.innerHeight/window.innerWidth]);
+    showRGBTexture(scsRenderer.csgTexture, [-256,-768*window.innerHeight/window.innerWidth]);
+    showAlpha(this.desttextures[currdesttexture], [-500,-256*window.innerHeight/window.innerWidth]);
+    showAlpha(this.desttextures[(currdesttexture+1)%2], [-500,-512*window.innerHeight/window.innerWidth]);
+    showAlpha(this.desttextures[scsRenderer.csgTexture], [-500,-768*window.innerHeight/window.innerWidth]);
   }
   
   this.mergeObjectsWithTexture(this.desttextures[currdesttexture], [0,0], [window.innerWidth, window.innerHeight]);
-  //	showRGBTexture(scsRenderer.csgTexture, [0,0], [window.innerWidth, window.innerHeight]);
 };
 
 
@@ -583,6 +731,8 @@ gl_FragColor = vec4(col, 1);\n\
   extra_objects_scene = createTestScene();
 
   loadModel(document.getElementById('menu').value);
+  applySettings(document.getElementById('renderermenu').value);
+  settings.debug = document.getElementById('debug').checked;
 }
 
 function createQuadScene(shader) {
@@ -781,6 +931,19 @@ function showDepthBuffer(texture, pos, size) {
 }
 
 /*!
+  Clears a portion of the viewport (color only)
+*/
+function clearViewport(pos, size) {
+  renderer.setRenderTarget(null); // Render to screen
+  var v = gl.getParameter(gl.VIEWPORT);
+  setupWindowViewport(pos, size);
+  
+  renderer.clear();
+
+  gl.viewport(v[0], v[1], v[2], v[3]);
+}
+
+/*!
  Renders the stencil buffer of the given render target in a window for debugging.
  The render target must have a depth attachment.
  Each stencil bit is rendered in a different color.
@@ -851,8 +1014,9 @@ function render() {
   var v = gl.getParameter(gl.VIEWPORT);
   gl.clearColor(0.0,0,0,0);
   renderer.clear();
+
   
-  scsRenderer.render(camera);
+  scsRenderer.render(camera, settings.rendering);
   
   if (settings.extraObjects) {
     renderer.render(extra_objects_scene, camera);
@@ -861,7 +1025,7 @@ function render() {
   
   if (settings.debug) {
     // Show texture in a window
-    showRGBTexture(scsRenderer.csgTexture, [0, 512*gl.canvas.height/gl.canvas.width]);
+//    showRGBTexture(scsRenderer.csgTexture, [0, 512*gl.canvas.height/gl.canvas.width]);
     
     // Render depth buffer in a window for debugging
     showDepthBuffer(scsRenderer.depthTexture, [0,0]);
@@ -879,4 +1043,12 @@ function loadModel(filename) {
   console.log('loading ' + filename + '...');
   var loader = new THREE.SceneLoader();
   loader.load(filename, loaderFinished);
+}
+
+function applySettings(str) {
+  settings.rendering = {};
+  var obj = eval("(" + str + ")");
+  for (var s in obj) {
+    if (obj.hasOwnProperty(s)) settings.rendering[s] = obj[s];
+  }
 }
