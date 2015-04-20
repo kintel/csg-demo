@@ -1,0 +1,21 @@
+{
+  "name": "csgdemo",
+  "version": "0.0.1",
+  "authors": [
+    "Marius Kintel <marius@kintel.net>"
+  ],
+  "description": "WebGL CSG Demo",
+  "main": "csgdemo.html",
+  "license": "All Rights Reserved",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "*"
+  }
+}
