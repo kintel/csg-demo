@@ -16,6 +16,10 @@
     "tests"
   ],
   "dependencies": {
-    "jquery": "*"
+    "jquery": "*",
+    "jscolor": "~1.4.2",
+    "three.js": "threejs#master",
+    "three.js-dev": "threejs#dev",
+    "three.js-kintel": "kintel/three.js#depthtextures-build"
   }
 }
