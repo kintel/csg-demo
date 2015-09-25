@@ -828,7 +828,6 @@ function setup(mainscene, maincamera) {
   controls.staticMoving = true;
   controls.dynamicDampingFactor = 0.1;
   
-  THREEx.WindowResize(renderer, camera);
   camera.position.z = 50;
   
   scsRenderer = new SCSRenderer(renderer, mainscene, [pointLight, light2]);
