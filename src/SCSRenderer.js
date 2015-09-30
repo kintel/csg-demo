@@ -144,6 +144,8 @@ void main() {\n\
       stencilBuffer: false
     });
   }
+
+  // The depth Texture is currently only used for debugging
   this.depthTexture = new THREE.DepthTexture(this.viewport[2], this.viewport[3], true);
   
   this.csgTexture = new THREE.WebGLRenderTarget(this.viewport[2], this.viewport[3], {
@@ -151,7 +153,7 @@ void main() {\n\
     magFilter: THREE.NearestFilter,
     format: THREE.RGBAFormat,
     type: THREE.FloatType,
-    depthTexture: this.depthTexture});
+    depth: this.depthTexture});
 }
 
 SCSRenderer.prototype = {
@@ -253,14 +255,15 @@ SCSRenderer.prototype = {
     // a) Mark all front facing fragments - this is where negative parts can show through
     this.gl.enable(this.gl.STENCIL_TEST);
     
-    product.differences.children.forEach(function(obj) { obj.visible = false; });
+    var difference_objects = product.differences.children[0].children;
+    difference_objects.forEach(function(obj) { obj.visible = false; });
     
     // This creates a worst-case (N^2) subtraction sequence
     // Optimizations:
     // o Batch primitives which don't overlap in screen-space
-    for (var j=0;j<product.differences.children.length;j++) 
-      for (var i=0;i<product.differences.children.length;i++) {
-        product.differences.children[i].visible = true;
+    for (var j=0;j<difference_objects.length;j++) 
+      for (var i=0;i<difference_objects.length;i++) {
+        difference_objects[i].visible = true;
         
         stencilCode++;
         
@@ -282,9 +285,9 @@ SCSRenderer.prototype = {
         this.gl.depthFunc(this.gl.LEQUAL);
         this.gl.cullFace(this.gl.BACK);
         
-        product.differences.children[i].visible = false;
+        difference_objects[i].visible = false;
       }
-    product.differences.children.forEach(function(obj) { obj.visible = true; });
+    difference_objects.forEach(function(obj) { obj.visible = true; });
     
     this.gl.disable(this.gl.STENCIL_TEST);
     this.gl.colorMask(true, true, true, true);
@@ -443,7 +446,7 @@ SCSRenderer.prototype = {
       // Optimization: Just render the object depth without clipping or stencils
       this.renderSceneDepthToTexture(product.intersections, texture, camera);
     }
-    if (product.differences) { // Skip if we only have positives
+    if (product.differences && product.differences.children.length > 0) { // Skip if we only have positives
       this.renderConvexSubtractions(product, camera, texture);
       this.renderClipZBuffer(product, camera, texture);
     }
@@ -524,7 +527,10 @@ SCSRenderer.prototype = {
       var product = {};
       product.intersections = new THREE.Scene();
       if (ch.intersections && ch.intersections.length > 0) {
-        product.intersections.add.apply(product.intersections, ch.intersections);
+        product.intersections.numObjects = ch.intersections.length;
+        var group = new THREE.Group();
+        group.add.apply(group, ch.intersections);
+        product.intersections.add(group);
         self.lights.forEach(function(light) {
 	  product.intersections.add(light.clone());
         });
@@ -532,7 +538,9 @@ SCSRenderer.prototype = {
 
       product.differences = new THREE.Scene();
       if (ch.differences && ch.differences.length > 0) {
-        product.differences.add.apply(product.differences, ch.differences);
+        var group = new THREE.Group();
+        group.add.apply(group, ch.differences);
+        product.differences.add(group);
         self.lights.forEach(function(light) {
 	  product.differences.add(light.clone());
         });
