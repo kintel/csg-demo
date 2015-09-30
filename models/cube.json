@@ -1,0 +1,47 @@
+{
+	"objects": {
+		"product1" : {
+			"position" : [ 0, 0, 0 ],
+			"rotation" : [ 0, 0, 0 ],
+			"scale"	   : [ 1, 1, 1 ],
+			"userData" : { "type" : "product" },
+			"visible"  : true,
+			"children" : {
+				"intersections" : {
+					"position" : [ 0, 0, 0 ],
+					"rotation" : [ 0, 0, 0 ],
+					"scale"	   : [ 1, 1, 1 ],
+					"userData" : { "type" : "intersections" },
+					"visible"  : true,
+					"children" : {
+						"p1isphere1" : {
+							"geometry" : "cube",
+							"material" : "openscad_yellow",
+							"position" : [ 0, 0, 0 ],
+							"rotation" : [ 0, 0, 0 ],
+							"scale"	   : [ 1, 1, 1 ],
+							"visible"  : true
+						}
+					}
+				}
+			}
+		}
+	},
+	"geometries": {
+
+		"cube": {
+			"type"  : "cube",
+			"width" : 20,
+			"height": 20,
+			"depth": 20
+		}
+	},
+	"materials": {
+		"openscad_yellow": {
+			"type": "MeshLambertMaterial",
+			"parameters": { "color": "#f9d72c", "ambient": "#0000FF" }
+		}
+	},
+	"defaults": {
+	}
+}
