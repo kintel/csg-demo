@@ -551,6 +551,7 @@ SCSRenderer.prototype = {
   },
 
   render: function(camera, options) {
+    options = options || {};
     if (options.realZBuffer) {
       this.renderWithRealZBuffer(camera, options);
     }
