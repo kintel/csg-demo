@@ -291,7 +291,7 @@ SCSRenderer.prototype = {
     var stencilMask = (1 << stencilBits) - 1;
     var stencilCode = 0;
     
-    console.log("renderConvexSubtractions: " + stencilBits + " stencil bits");
+//    console.log("renderConvexSubtractions: " + stencilBits + " stencil bits");
     
     // a) Mark all front facing fragments - this is where negative parts can show through
     this.gl.enable(this.gl.STENCIL_TEST);
