@@ -42,5 +42,6 @@ gulp.task('serve', ['bower', 'browserify', 'copy'], function () {
 gulp.task('watch', ['serve'], function () {
     gulp.watch(['public/*.html'], reload);
     gulp.watch(['src/**/*.js'], ['browserify'], reload);
+    gulp.watch(['models/**/*'], ['copy'], reload);
     gulp.watch(['bower.json'], ['copy'], reload);
 });
