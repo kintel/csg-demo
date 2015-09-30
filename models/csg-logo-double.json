@@ -18,7 +18,7 @@
 				"trans2": {
 					"geometry" : "cylinder",
 					"material" : "transparent_grey",
-					"position" : [ 35, 0, 0 ],
+					"position" : [ 45, 0, 0 ],
 					"rotation" : [ 1.5707963267948966, 0, 0 ],
 					"scale"	   : [ 1, 1, 1 ],
 					"visible"  : true
