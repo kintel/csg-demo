@@ -9,13 +9,25 @@ gulp.task('bower', function() { 
 });
 
 gulp.task('copy', function () {
-  gulp.src('./src/**/*.js')
-    .pipe(gulp.dest('./public/js'));
   gulp.src('./models/**/*')
     .pipe(gulp.dest('./public/models'));
 });
 
-gulp.task('serve', ['bower', 'copy'], function () {
+var browserify = require('browserify');
+var globby = require('globby');
+var source = require('vinyl-source-stream');
+var buffer = require('vinyl-buffer');
+gulp.task('browserify', function() {
+  globby(['./src/**/*.js']).then(function(entries) {
+    var b = browserify(entries);
+    b.bundle()
+      .pipe(source('app.js'))
+      .pipe(buffer())
+      .pipe(gulp.dest('public/js'));
+  });
+});
+
+gulp.task('serve', ['bower', 'browserify', 'copy'], function () {
   browserSync.init(null, {
     server: {
       baseDir: 'public',
@@ -28,6 +40,7 @@ gulp.task('serve', ['bower', 'copy'], function () {
 });
 
 gulp.task('watch', ['serve'], function () {
-    gulp.watch(['*.html', 'csgdemo.js', 'SCSRenderer.js'], reload);
+    gulp.watch(['public/*.html'], reload);
+    gulp.watch(['src/**/*.js'], ['browserify'], reload);
     gulp.watch(['bower.json'], ['bower'], reload);
 });

@@ -1,3 +1,5 @@
+var SCSRenderer = require('./SCSRenderer');
+
 function text2html(text) {
   return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
 }
@@ -136,11 +138,11 @@ gl_FragColor = vec4(col, 1);\n\
 }\n\
 '};
 	
-  texScene = createQuadScene(texshader);
-  texRgbScene = createQuadScene(texrgbshader);
-  alphaScene = createQuadScene(alphashader);
-  depthScene = createQuadScene(depthshader);
-  stencilScene = createQuadScene(stencilshader);
+  texScene = SCSRenderer.createQuadScene(texshader);
+  texRgbScene = SCSRenderer.createQuadScene(texrgbshader);
+  alphaScene = SCSRenderer.createQuadScene(alphashader);
+  depthScene = SCSRenderer.createQuadScene(depthshader);
+  stencilScene = SCSRenderer.createQuadScene(stencilshader);
   quadCamera = new THREE.OrthographicCamera( -1, 1, 1, -1, 0, 1 );
   
   windowTexture = new THREE.WebGLRenderTarget(256, 256*window.innerHeight/window.innerWidth, {
@@ -153,25 +155,18 @@ gl_FragColor = vec4(col, 1);\n\
   
   extra_objects_scene = createTestScene();
 
-  loadModel(document.getElementById('menu').value);
-  applySettings(document.getElementById('renderermenu').value);
   settings.debug = document.getElementById('debug').checked;
-}
 
-function createQuadScene(shader) {
-  var quadMaterial = new THREE.ShaderMaterial( {
-    uniforms: shader.uniforms,
-    vertexShader: shader.vertexShader,
-    fragmentShader: shader.fragmentShader
-  } );
-  var quadScene = new THREE.Scene();
-  var geom = new THREE.PlaneBufferGeometry( 2, 2 );
-  for (var i=0;i<geom.attributes.position.array.length;i+=3) {
-    geom.attributes.position.array[i+2] = 1;
-  }
-  quadScene.add(new THREE.Mesh( geom, quadMaterial ))
-  quadScene.shaderMaterial = quadMaterial;
-  return quadScene;
+  document.getElementById('renderermenu').addEventListener('change', function(event) {
+    applySettings(event.target.value);
+  });
+  applySettings(document.getElementById('renderermenu').value);
+
+  document.getElementById('menu').addEventListener('change', function(event) {
+    loadModel(event.target.value);
+  });
+  loadModel(document.getElementById('menu').value);
+
 }
 
 function loaderFinished(result) {
@@ -220,7 +215,7 @@ function setupWindowViewport(pos, size) {
   pos = pos || [window.innerWidth - size[0], 0];
   if (pos[0] < 0) pos[0] += window.innerWidth;
   if (pos[1] < 0) pos[1] += window.innerHeight;
-	renderer.setViewport(pos[0], pos[1], size[0], size[1]);
+  renderer.setViewport(pos[0], pos[1], size[0], size[1]);
 }
 
 /*
