@@ -1,56 +1,13 @@
-function SCSRenderer(renderer, scene, lights) {
+function SCSRenderer(renderer, lights) {
   var self = this;
   this.renderer = renderer;
   this.gl = renderer.getContext();
   this.viewport = this.gl.getParameter(this.gl.VIEWPORT);
-  this.scene = scene;
   this.products = [];
-  this.transparent_objects = new THREE.Scene();
+  this.lights = [];
   lights.forEach(function(light) {
-    self.transparent_objects.add(light.clone());
+    self.lights.push(light.clone());
   });
-
-  var transparents;
-  this.numProducts = 0;
-  scene.children.forEach(function(ch) {
-    if (ch.userData.type === 'transparents') {
-      transparents = ch;
-      return;
-    }
-    var product = ch;
-    var intersections, differences;
-    product.children.forEach(function(child) {
-      if (child.userData) {
-	if (child.userData.type === 'intersections') {
-	  intersections = child;
-	}
-	else if (child.userData.type === 'differences') {
-	  differences = child;
-	}
-      }
-    });
-    if (intersections) {
-      product.intersections = new THREE.Scene();
-      product.intersections.add(intersections);
-      lights.forEach(function(light) {
-	product.intersections.add(light.clone());
-      });
-      product.intersections.numObjects = intersections.children.length;
-    }
-    if (differences) {
-      product.differences = new THREE.Scene();
-      product.differences.objects = differences.children;
-      product.differences.add(differences);
-      lights.forEach(function(light) {
-	product.differences.add(light.clone());
-      });
-    }
-    self.products.push(product);
-    self.numProducts++;
-  });
-
-  if (transparents) self.transparent_objects.add(transparents);
-
 
   var scsPassShader = {
     uniforms: {},
@@ -296,14 +253,14 @@ SCSRenderer.prototype = {
     // a) Mark all front facing fragments - this is where negative parts can show through
     this.gl.enable(this.gl.STENCIL_TEST);
     
-    product.differences.objects.forEach(function(obj) { obj.visible = false; });
+    product.differences.children.forEach(function(obj) { obj.visible = false; });
     
     // This creates a worst-case (N^2) subtraction sequence
     // Optimizations:
     // o Batch primitives which don't overlap in screen-space
-    for (var j=0;j<product.differences.objects.length;j++) 
-      for (var i=0;i<product.differences.objects.length;i++) {
-        product.differences.objects[i].visible = true;
+    for (var j=0;j<product.differences.children.length;j++) 
+      for (var i=0;i<product.differences.children.length;i++) {
+        product.differences.children[i].visible = true;
         
         stencilCode++;
         
@@ -325,9 +282,9 @@ SCSRenderer.prototype = {
         this.gl.depthFunc(this.gl.LEQUAL);
         this.gl.cullFace(this.gl.BACK);
         
-        product.differences.objects[i].visible = false;
+        product.differences.children[i].visible = false;
       }
-    product.differences.objects.forEach(function(obj) { obj.visible = true; });
+    product.differences.children.forEach(function(obj) { obj.visible = true; });
     
     this.gl.disable(this.gl.STENCIL_TEST);
     this.gl.colorMask(true, true, true, true);
@@ -434,7 +391,7 @@ SCSRenderer.prototype = {
     this.gl.depthFunc(this.gl.ALWAYS);
     this.mergeObjectsMaterial.uniforms.merged.value = texture;
     this.mergeObjectsMaterial.uniforms.viewSize.value = [this.viewport[2], this.viewport[3]];
-    for (var i=0;i<this.numProducts;i++) {
+    for (var i=0;i<this.products.length;i++) {
       var product = this.products[i];
       product.intersections.overrideMaterial = this.mergeObjectsMaterial;
       this.renderer.render(product.intersections, camera);
@@ -504,7 +461,7 @@ SCSRenderer.prototype = {
     }
     
     this.renderer.clearTarget(this.csgTexture, true, false, false);
-    for (var i=0;i<this.numProducts;i++) {
+    for (var i=0;i<this.products.length;i++) {
       var product = this.products[i]
       if (!product.differences && product.intersections.numObjects === 1) {
         this.renderSceneToFramebuffer(product.intersections, camera);
@@ -527,13 +484,13 @@ SCSRenderer.prototype = {
     }
     
     this.renderer.clearTarget(this.csgTexture, true, false, false);
-    for (var i=0;i<this.numProducts;i++) {
+    for (var i=0;i<this.products.length;i++) {
       var product = this.products[i];
       this.renderProductToTexture(product, this.csgTexture, camera)
       this.mergeBuffers(this.csgTexture, this.desttextures[i%2], this.desttextures[(i+1)%2]);
     }
     
-    var currdesttexture = this.numProducts%2;
+    var currdesttexture = this.products.length%2;
     //	this.renderer.clearTarget(this.csgTexture, true, true, true);
     
     //  showRGBTexture(this.desttextures[1], [0,0], [window.innerWidth, window.innerHeight]);
@@ -551,6 +508,38 @@ SCSRenderer.prototype = {
 
   setDebug: function(debugflag) {
     this.debug = debugflag;
+  },
+
+  setScene: function(csgscene) {
+    var self = this;
+    this.products = [];
+    this.transparent_objects = new THREE.Scene();
+    if (csgscene.transparents) {
+      this.transparent_objects.add.apply(this.transparent_objects, csgscene.transparents);
+      this.lights.forEach(function(light) {
+        self.transparent_objects.add(light.clone());
+      });
+    }
+    csgscene.products.forEach(function(ch) {
+      var product = {};
+      product.intersections = new THREE.Scene();
+      if (ch.intersections && ch.intersections.length > 0) {
+        product.intersections.add.apply(product.intersections, ch.intersections);
+        self.lights.forEach(function(light) {
+	  product.intersections.add(light.clone());
+        });
+      }
+
+      product.differences = new THREE.Scene();
+      if (ch.differences && ch.differences.length > 0) {
+        product.differences.add.apply(product.differences, ch.differences);
+        self.lights.forEach(function(light) {
+	  product.differences.add(light.clone());
+        });
+      }
+
+      self.products.push(product);
+    });
   },
 
   render: function(camera, options) {

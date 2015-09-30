@@ -1,4 +1,5 @@
 var SCSRenderer = require('./SCSRenderer');
+var CSGScene = require('./CSGNodes').CSGScene;
 
 function text2html(text) {
   return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
@@ -165,19 +166,25 @@ gl_FragColor = vec4(col, 1);\n\
   document.getElementById('menu').addEventListener('change', function(event) {
     loadModel(event.target.value);
   });
+
+  document.getElementById('debug').addEventListener('change', function(event) {
+    settings.debug = event.target.checked;
+    render();
+  });
+
+  document.getElementById('extra_objects').addEventListener('change', function(event) {
+    settings.extraObjects = event.target.checked;
+    render();
+  });
+
+  setup();
+
   loadModel(document.getElementById('menu').value);
-
 }
 
-function loaderFinished(result) {
-  var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.5, 1000);
+function setup() {
 
-  setup(result.scene, camera);
-
-  render();
-}
-
-function setup(mainscene, maincamera) {
+  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.5, 1000);
 
   // create a point light
   var pointLight = new THREE.PointLight(0xFFFFFF);
@@ -193,7 +200,6 @@ function setup(mainscene, maincamera) {
   light2.target.y = 0;
   light2.target.z = 0;
   
-  camera = maincamera;
   controls = new THREE.TrackballControls(camera, canvas);
   controls.rotateSpeed = 3.0;
   controls.panSpeed = 2.0;
@@ -202,7 +208,7 @@ function setup(mainscene, maincamera) {
   
   camera.position.z = 50;
   
-  scsRenderer = new SCSRenderer(renderer, mainscene, [pointLight, light2]);
+  scsRenderer = new SCSRenderer(renderer, [pointLight, light2]);
   
   animate();
   controls.addEventListener('change', render);
@@ -411,9 +417,12 @@ function render() {
 }
 
 function loadModel(filename) {
-  console.log('loading ' + filename + '...');
-  var loader = new THREE.SceneLoader();
-  loader.load(filename, loaderFinished);
+  var csgscene = new CSGScene();
+  csgscene.load(filename, function() {
+    console.log('Loaded ' + filename);
+    scsRenderer.setScene(csgscene);
+    render();
+  });
 }
 
 function applySettings(str) {

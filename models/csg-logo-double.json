@@ -85,14 +85,14 @@
 			}
 		},
 		"product2" : {
-			"position" : [ 10, 0, 0 ],
+			"position" : [ 0, 0, 0 ],
 			"rotation" : [ 0, 0, 0 ],
 			"scale"	   : [ 1, 1, 1 ],
 			"userData" : { "type" : "product" },
 			"visible"  : true,
 			"children" : {
 				"intersections2" : {
-					"position" : [ 35, 0, 0 ],
+					"position" : [ 0, 0, 0 ],
 					"rotation" : [ 0, 0, 0 ],
 					"scale"	   : [ 1, 1, 1 ],
 					"userData" : { "type" : "intersections" },
@@ -101,7 +101,7 @@
 						"p2isphere1" : {
 							"geometry" : "sphere",
 							"material" : "phong_green",
-							"position" : [ 0, 0, 0 ],
+							"position" : [ 45, 0, 0 ],
 							"rotation" : [ 0, 0, 0 ],
 							"scale"	   : [ 1, 1, 1 ],
 							"visible"  : true
@@ -109,7 +109,7 @@
 					}
 				},
 				"differences2" : {
-					"position" : [ 35, 0, 0 ],
+					"position" : [ 0, 0, 0 ],
 					"rotation" : [ 0, 0, 0 ],
 					"scale"	   : [ 1, 1, 1 ],
 					"userData" : { "type" : "differences" },
@@ -118,7 +118,7 @@
 						"p2dcyl1" : {
 							"geometry" : "cylinder",
 							"material" : "faceted_white",
-							"position" : [ 0, 0, 0 ],
+							"position" : [ 45, 0, 0 ],
 							"rotation" : [ 0, 0, 0 ],
 							"scale"	   : [ 1, 1, 1 ],
 							"visible"  : true
@@ -126,7 +126,7 @@
 						"p2dcyl2" : {
 							"geometry" : "cylinder",
 							"material" : "faceted_white",
-							"position" : [ 0, 0, 0 ],
+							"position" : [ 45, 0, 0 ],
 							"rotation" : [ 0, 0, 1.5707963267948966 ],
 							"scale"	   : [ 1, 1, 1 ],
 							"visible"  : true
