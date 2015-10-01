@@ -1,13 +1,11 @@
-function SCSRenderer(renderer, lights) {
+function SCSRenderer(renderer) {
   var self = this;
   this.renderer = renderer;
   this.gl = renderer.getContext();
+  this.size = this.renderer.getSize();
   this.viewport = this.gl.getParameter(this.gl.VIEWPORT);
   this.products = [];
   this.lights = [];
-  lights.forEach(function(light) {
-    self.lights.push(light.clone());
-  });
 
   var scsPassShader = {
     uniforms: {},
@@ -132,33 +130,38 @@ void main() {\n\
   this.mergeScene = SCSRenderer.createQuadScene(mergeshader);
   this.quadCamera = new THREE.OrthographicCamera( -1, 1, 1, -1, 0, 1 );
   
-  // Setup two temporary RGBA float textures for accumulating product depths and color buffers
-  this.desttextures = [];
-  for (var i=0;i<2;i++) {
-    this.desttextures[i] = new THREE.WebGLRenderTarget(this.viewport[2], this.viewport[3], {
-      minFilter: THREE.NearestFilter,
-      magFilter: THREE.NearestFilter,
-      format: THREE.RGBAFormat,
-      type: THREE.FloatType,
-      depthBuffer: false,
-      stencilBuffer: false
-    });
-  }
-
-  // The depth Texture is currently only used for debugging
-  this.depthTexture = new THREE.DepthTexture(this.viewport[2], this.viewport[3], true);
-  
-  this.csgTexture = new THREE.WebGLRenderTarget(this.viewport[2], this.viewport[3], {
-    minFilter: THREE.NearestFilter,
-    magFilter: THREE.NearestFilter,
-    format: THREE.RGBAFormat,
-    type: THREE.FloatType,
-    depth: this.depthTexture});
+  this.setupTextureResources();
 }
 
 SCSRenderer.prototype = {
 
     constructor: SCSRenderer,
+
+  // FIXME: Who is responsible for freeing old resources?
+  setupTextureResources: function() {
+    // Setup two temporary RGBA float textures for accumulating product depths and color buffers
+    this.desttextures = [];
+    for (var i=0;i<2;i++) {
+      this.desttextures[i] = new THREE.WebGLRenderTarget(this.size.width, this.size.height, {
+        minFilter: THREE.NearestFilter,
+        magFilter: THREE.NearestFilter,
+        format: THREE.RGBAFormat,
+        type: THREE.FloatType,
+        depthBuffer: false,
+        stencilBuffer: false
+      });
+    }
+    
+    // The depth Texture is currently only used for debugging
+    this.depthTexture = new THREE.DepthTexture(this.size.width, this.size.height, true);
+    
+    this.csgTexture = new THREE.WebGLRenderTarget(this.size.width, this.size.height, {
+      minFilter: THREE.NearestFilter,
+      magFilter: THREE.NearestFilter,
+      format: THREE.RGBAFormat,
+      type: THREE.FloatType,
+      depth: this.depthTexture});
+  },
 
 /*!
   Renders the intersections of a product into the depth buffer of the given renderTarget.
@@ -393,7 +396,7 @@ SCSRenderer.prototype = {
     
     this.gl.depthFunc(this.gl.ALWAYS);
     this.mergeObjectsMaterial.uniforms.merged.value = texture;
-    this.mergeObjectsMaterial.uniforms.viewSize.value = [this.viewport[2], this.viewport[3]];
+    this.mergeObjectsMaterial.uniforms.viewSize.value = [this.size.width, this.size.height];
     for (var i=0;i<this.products.length;i++) {
       var product = this.products[i];
       product.intersections.overrideMaterial = this.mergeObjectsMaterial;
@@ -414,7 +417,7 @@ SCSRenderer.prototype = {
     this.renderer.setRenderTarget(null); // Render to screen
     
     this.mergeObjectsMaterial.uniforms.merged.value = texture;
-    this.mergeObjectsMaterial.uniforms.viewSize.value = [this.viewport[2], this.viewport[3]];
+    this.mergeObjectsMaterial.uniforms.viewSize.value = [this.size.width, this.size.height];
     product.intersections.overrideMaterial = this.mergeObjectsMaterial;
     this.renderer.render(product.intersections, camera);
     if (product.differences) {
@@ -552,13 +555,22 @@ SCSRenderer.prototype = {
 
   render: function(camera, options) {
     options = options || {};
-    if (options.realZBuffer) {
-      this.renderWithRealZBuffer(camera, options);
+    this.renderWithRealZBuffer(camera, options);
+  },
+
+  setSize: function(width, height) {
+    this.renderer.setSize(width, height);
+
+    if (this.size.width != width || this.size.height != height) {
+      this.size = this.renderer.getSize();
+      this.setupTextureResources();
     }
-    else {
-      console.log("No matching rendering algorithm found");
-    }
-  }  
+  },
+
+  addLights: function(lights) {
+    this.lights = lights;
+  }
+
 };
 
 SCSRenderer.createQuadScene = function(shader) {

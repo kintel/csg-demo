@@ -18,6 +18,7 @@ function handleError(text) {
 
 window.onerror = handleError;
 
+var canvaswrapper;
 var canvas;
 var renderer;
 var gl;
@@ -34,9 +35,6 @@ var depthScene;
 var stencilScene;
 var quadCamera;
 	
-var windowTexture;
-var depthComposer;
-var showDepthPass;
 var scsRenderer;
 var controls;
 var camera;
@@ -45,11 +43,41 @@ var extra_objects_scene;
 window.onload = function() {
 	
   document.body.style.backgroundColor = '#' + $("#bgcolor")[0].color.toString();
+  canvaswrapper = document.getElementById('canvaswrapper');
   canvas = document.getElementById('canvas');
+
   renderer = new THREE.WebGLRenderer({canvas: canvas, alpha: true});
   gl = renderer.getContext();
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  resizeCanvasToDisplaySize(true);
+  var size = renderer.getSize();
+
+  camera = new THREE.PerspectiveCamera(75, size.width / size.height, 0.5, 1000);
+  camera.position.z = 50;
+
+  controls = new THREE.TrackballControls(camera, canvaswrapper);
+  controls.rotateSpeed = 3.0;
+  controls.panSpeed = 2.0;
+  controls.staticMoving = true;
+  controls.dynamicDampingFactor = 0.1;
+  controls.addEventListener('change', render);
   
+  // create a point light
+  var pointLight = new THREE.PointLight(0xFFFFFF);
+  pointLight.position.x = 10;
+  pointLight.position.y = 50;
+  pointLight.position.z = 130;
+  
+  var light2 = new THREE.DirectionalLight(0xFFFFFF);
+  light2.position.x = 100;
+  light2.position.y = -50;
+  light2.position.z = -130;
+  light2.target.x = 0;
+  light2.target.y = 0;
+  light2.target.z = 0;
+  
+  scsRenderer = new SCSRenderer(renderer);
+  scsRenderer.addLights([pointLight, light2]);
+
   depthshader = {
     uniforms: {dtexture: {type: 't'}},
     vertexShader: '\
@@ -146,14 +174,6 @@ gl_FragColor = vec4(col, 1);\n\
   stencilScene = SCSRenderer.createQuadScene(stencilshader);
   quadCamera = new THREE.OrthographicCamera( -1, 1, 1, -1, 0, 1 );
   
-  windowTexture = new THREE.WebGLRenderTarget(256, 256*window.innerHeight/window.innerWidth, {
-    minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter});
-  depthComposer = new THREE.EffectComposer(renderer, windowTexture);
-  showDepthPass = new THREE.ShaderPass(depthshader);
-  showDepthPass.renderToScreen = true;
-  showDepthPass.needsSwap = false;
-  depthComposer.addPass(showDepthPass);
-  
   extra_objects_scene = createTestScene();
 
   settings.debug = document.getElementById('debug').checked;
@@ -177,50 +197,20 @@ gl_FragColor = vec4(col, 1);\n\
     render();
   });
 
-  setup();
+  window.addEventListener('resize', render);
 
   loadModel(document.getElementById('menu').value);
-}
 
-function setup() {
-
-  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.5, 1000);
-
-  // create a point light
-  var pointLight = new THREE.PointLight(0xFFFFFF);
-  pointLight.position.x = 10;
-  pointLight.position.y = 50;
-  pointLight.position.z = 130;
-  
-  var light2 = new THREE.DirectionalLight(0xFFFFFF);
-  light2.position.x = 100;
-  light2.position.y = -50;
-  light2.position.z = -130;
-  light2.target.x = 0;
-  light2.target.y = 0;
-  light2.target.z = 0;
-  
-  controls = new THREE.TrackballControls(camera, canvas);
-  controls.rotateSpeed = 3.0;
-  controls.panSpeed = 2.0;
-  controls.staticMoving = true;
-  controls.dynamicDampingFactor = 0.1;
-  
-  camera.position.z = 50;
-  
-  scsRenderer = new SCSRenderer(renderer, [pointLight, light2]);
-  
   animate();
-  controls.addEventListener('change', render);
 }
 
-function setupWindowViewport(pos, size) {
+function setupWindowViewport(pos, size, canvassize) {
   size = size || [256,0];
-  if (!size[0]) size[0] = size[1] * window.innerWidth/window.innerHeight;
-  if (!size[1]) size[1] = size[0] * window.innerHeight/window.innerWidth;
+  if (!size[0]) size[0] = size[1] * canvassize.width/canvassize.height;
+  if (!size[1]) size[1] = size[0] * canvassize.height/canvassize.width;
   pos = pos || [window.innerWidth - size[0], 0];
-  if (pos[0] < 0) pos[0] += window.innerWidth;
-  if (pos[1] < 0) pos[1] += window.innerHeight;
+  if (pos[0] < 0) pos[0] += canvassize.width;
+  if (pos[1] < 0) pos[1] += canvassize.height;
   renderer.setViewport(pos[0], pos[1], size[0], size[1]);
 }
 
@@ -229,8 +219,9 @@ function setupWindowViewport(pos, size) {
 */
 function showRGBTexture(texture, pos, size) {
   renderer.setRenderTarget(null); // Render to screen
+  var canvassize = renderer.getSize();
   var v = gl.getParameter(gl.VIEWPORT);
-  setupWindowViewport(pos, size);
+  setupWindowViewport(pos, size, canvassize);
 	
   gl.disable(gl.DEPTH_TEST);
 	
@@ -246,8 +237,9 @@ function showRGBTexture(texture, pos, size) {
 */
 function showTexture(texture, pos, size) {
   renderer.setRenderTarget(null); // Render to screen
+  var canvassize = renderer.getSize();
   var v = gl.getParameter(gl.VIEWPORT);
-  setupWindowViewport(pos, size);
+  setupWindowViewport(pos, size, canvassize);
   
   gl.disable(gl.DEPTH_TEST);
   gl.enable(gl.BLEND);
@@ -266,8 +258,9 @@ function showTexture(texture, pos, size) {
 */
 function showAlpha(texture, pos, size) {
   renderer.setRenderTarget(null); // Render to screen
+  var canvassize = renderer.getSize();
   var v = gl.getParameter(gl.VIEWPORT);
-  setupWindowViewport(pos, size);
+  setupWindowViewport(pos, size, canvassize);
   
   gl.disable(gl.DEPTH_TEST);
   gl.depthMask(false);
@@ -289,8 +282,9 @@ function showAlpha(texture, pos, size) {
 */
 function showDepthBuffer(texture, pos, size) {
   renderer.setRenderTarget(null); // Render to screen
+  var canvassize = renderer.getSize();
   var v = gl.getParameter(gl.VIEWPORT);
-  setupWindowViewport(pos, size);
+  setupWindowViewport(pos, size, canvassize);
   
   gl.disable(gl.DEPTH_TEST);
   gl.depthMask(false);
@@ -312,8 +306,9 @@ function showDepthBuffer(texture, pos, size) {
 */
 function clearViewport(pos, size) {
   renderer.setRenderTarget(null); // Render to screen
+  var canvassize = renderer.getSize();
   var v = gl.getParameter(gl.VIEWPORT);
-  setupWindowViewport(pos, size);
+  setupWindowViewport(pos, size, canvassize);
   
   renderer.clear();
 
@@ -328,8 +323,9 @@ function clearViewport(pos, size) {
 */
 function showStencilBuffer(target, pos, size) {
   renderer.setRenderTarget(null); // Render to screen
+  var canvassize = renderer.getSize();
   var v = gl.getParameter(gl.VIEWPORT);
-  setupWindowViewport(pos, size);
+  setupWindowViewport(pos, size, canvassize);
   
   var colors = [[1,0,0],[0,1,0],[0,0,1],[1,1,0]];
   
@@ -358,11 +354,6 @@ function showStencilBuffer(target, pos, size) {
   gl.viewport(v[0], v[1], v[2], v[3]);
 }
 
-function onWindowResize() {
-  controls.handleResize();
-  render();
-}
-
 function animate() {
   requestAnimationFrame(animate);
   controls.update();
@@ -385,9 +376,12 @@ function createTestScene() {
 
 function render() {
 
+  resizeCanvasToDisplaySize();
+  var size = renderer.getSize();
+
   renderer.setRenderTarget(null); // Render to screen
   renderer.autoClear = false;
-  setupWindowViewport([0,0], [window.innerWidth, window.innerHeight]);
+  setupWindowViewport([0,0], [size.width, size.height], size);
   var v = gl.getParameter(gl.VIEWPORT);
   gl.clearColor(0.0,0,0,0);
   renderer.clear();
@@ -430,5 +424,23 @@ function applySettings(str) {
   var obj = eval("(" + str + ")");
   for (var s in obj) {
     if (obj.hasOwnProperty(s)) settings.rendering[s] = obj[s];
+  }
+}
+
+function resizeCanvasToDisplaySize(force) {
+  // Inherit width from parent
+  var width = canvaswrapper.clientWidth;
+  var height = canvaswrapper.clientHeight;
+  if (force || canvas.width != width || canvas.height != height) {
+    // Will update canvas size and gl.viewport
+    if (scsRenderer) scsRenderer.setSize(width, height, true);
+    else renderer.setSize(width, height, true);
+    if (camera) {
+      camera.aspect = width/height;
+      camera.updateProjectionMatrix();
+    }
+    if (controls) {
+      controls.handleResize();
+    }
   }
 }
