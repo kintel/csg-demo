@@ -17,8 +17,8 @@ WebGL 1.0 has several limitations which influence our choices:
 
 * We cannot write to gl_FragDepth. EXT_frag_depth is not available on Safari
 * We cannot draw to multiple buffers WEBGL_draw_buffers is not available on Safari
-* Depth textures is an extension (WEBGL_depth_texture). Wide desktop adoption, unknown mobile adoption
-* Float textures is an extension (OES_texture_float). Wide desktop adoptions, unknown mobile adoption
+* Depth textures is an extension (WEBGL_depth_texture). Wide desktop adoption, good mobile adoption (Android lagging behind a bit)
+* Float textures is an extension (OES_texture_float). Wide desktop AND mobile adoption
 
 # Algorithms
 
@@ -79,6 +79,7 @@ rendered more than once. A naive approach is to create a subtraction
 sequence in a double loop, yielding N^2 subtractions.
 
 Assuming a correct (or naive) subtraction sequence, for each objects in the sequence:
+
 1. Using the Z buffer from the intersection rendering, mark _front fragments_ passing Z test (mark stencil with all other buffers disabled)
 2. Render all _back faces_ with an inverted Z test masked against the stencil.
 
@@ -214,6 +215,23 @@ Modified SCS:
    pass where only the depth buffer is taken from the product's
    components and the color buffer from the previously generated float
    texture
+
+### Merge using ID materials
+
+Another way of optimizing merging is to render each product with "ID
+materials" into the color buffer. When merging, we only merge depth
+values into the framebuffer, and we simply write depth value only for
+the fragments which has a matching ID in the color buffer, using a
+normal depth test.
+
+When doing this, a fully merged Z buffer will be available in the
+framebuffer. We can then render using normal material as a final pass
+using ane EQUAL depth test.
+
+tree.js challenges: How to transfer the ID material per object?
+* Duplicate geometry and add colors as vertex attributes
+* Duplicate material per object and set color
+* Patch three.js to allow transfer of additional uniforms per object
 
 ### Special case: Only intersections
 
