@@ -495,7 +495,7 @@ SCSRenderer.prototype = {
     this.gl.depthFunc(this.gl.LESS);
   },
 
-  mergeProductWithTexture: function(product, texture) {
+  mergeProductWithTexture: function(product, camera, texture) {
     this.renderer.setRenderTarget(null); // Render to screen
     
     this.mergeObjectsMaterial.uniforms.merged.value = texture;
@@ -559,7 +559,7 @@ SCSRenderer.prototype = {
       }
       else {
         this.renderProductToTexture(product, this.csgTexture, camera)
-        this.mergeProductWithTexture(product, this.csgTexture);
+        this.mergeProductWithTexture(product, camera, this.csgTexture);
       }
     }
   },
