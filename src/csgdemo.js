@@ -148,7 +148,9 @@ gl_Position = vec4(position.xy, 0, 1);\n\
 uniform sampler2D texture;\n\
 varying vec2 coord;\n\
 void main() {\n\
-gl_FragColor.rgb = texture2D(texture, coord).rgb;\n\
+vec3 col = texture2D(texture, coord).rgb;\n\
+float alpha = (col == vec3(0,0,0)) ? 0.0 : 1.0;\n\
+gl_FragColor.rgba = vec4(col, alpha);\n\
 }\n'
   };
   
@@ -383,7 +385,7 @@ function render() {
   renderer.autoClear = false;
   setupWindowViewport([0,0], [size.width, size.height], size);
   var v = gl.getParameter(gl.VIEWPORT);
-  gl.clearColor(0.0,0,0,0);
+  gl.clearColor(0,0,0,0);
   renderer.clear();
 
   
@@ -399,14 +401,14 @@ function render() {
     showRGBTexture(scsRenderer.csgTexture, [0, 512*gl.canvas.height/gl.canvas.width]);
     
     // Render depth buffer in a window for debugging
-    showDepthBuffer(scsRenderer.depthTexture, [0,0]);
-    showAlpha(scsRenderer.csgTexture, [100,0]);
+//    showDepthBuffer(scsRenderer.depthTexture, [0,0]);
+//    showAlpha(scsRenderer.csgTexture, [100,0]);
     
-    showAlpha(scsRenderer.desttextures[0], [0,-256*gl.canvas.height/gl.canvas.width]);
-    showAlpha(scsRenderer.desttextures[1], [100,-256*gl.canvas.height/gl.canvas.width]);
+//    showAlpha(scsRenderer.desttextures[0], [0,-256*gl.canvas.height/gl.canvas.width]);
+//    showAlpha(scsRenderer.desttextures[1], [100,-256*gl.canvas.height/gl.canvas.width]);
     
     // Render stencil buffer in a window for debugging
-    showStencilBuffer(scsRenderer.csgTexture, [0,256*gl.canvas.height/gl.canvas.width]);
+//    showStencilBuffer(scsRenderer.csgTexture, [0,256*gl.canvas.height/gl.canvas.width]);
   }
 }
 

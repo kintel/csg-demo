@@ -9,14 +9,14 @@ Copyright 2014 Marius Kintel
 <meta charset="UTF-8">
 <head>
   <title>WebGL CSG Demo</title>
-<script src="vendor/three.js-kintel/build/three.js"></script>
-<script src="vendor/three.js-kintel/examples/js/postprocessing/EffectComposer.js"></script>
-<script src="vendor/three.js-kintel/examples/js/postprocessing/RenderPass.js"></script>
-<script src="vendor/three.js-kintel/examples/js/postprocessing/ShaderPass.js"></script>
-<script src="vendor/three.js-kintel/examples/js/postprocessing/MaskPass.js"></script>
-<script src="vendor/three.js-kintel/examples/js/shaders/CopyShader.js"></script>
-<script src="vendor/three.js-kintel/examples/js/loaders/deprecated/SceneLoader.js"></script>
-<script src="vendor/three.js-kintel/examples/js/controls/TrackballControls.js"></script>
+<script src="vendor/three.js-kintel2/build/three.js"></script>
+<script src="vendor/three.js-kintel2/examples/js/postprocessing/EffectComposer.js"></script>
+<script src="vendor/three.js-kintel2/examples/js/postprocessing/RenderPass.js"></script>
+<script src="vendor/three.js-kintel2/examples/js/postprocessing/ShaderPass.js"></script>
+<script src="vendor/three.js-kintel2/examples/js/postprocessing/MaskPass.js"></script>
+<script src="vendor/three.js-kintel2/examples/js/shaders/CopyShader.js"></script>
+<script src="vendor/three.js-kintel2/examples/js/loaders/deprecated/SceneLoader.js"></script>
+<script src="vendor/three.js-kintel2/examples/js/controls/TrackballControls.js"></script>
 <script src="vendor/jquery/dist/jquery.min.js"></script>
 <script src="vendor/jscolor/jscolor.js"></script>
 <script type="x-shader/x-vertex" id="nullvert">
@@ -75,6 +75,7 @@ void main() {
           <option value="models/csg-logo-double.json">Logo double bumpmap</option>
           <option value="models/cube.json">Cube</option>
           <option value="models/spheres.json">Spheres</option>
+          <option value="models/brick.json">Lego</option>
           <option value="models/difference_cube.json">difference_cube</option>
           <option value="models/intersection.json">intersection</option>
           <option value="models/translate.json">translate</option>
@@ -98,12 +99,13 @@ void main() {
         </td></tr>
       <tr><td>
         Renderer: <select id="renderermenu" size="1">
-          <option value="{}" selected="">Real Z Buffer</option>
+          <option value="{useIDColors: true}" selected="">ID Colors</option>
+          <option value="{}">Real Z Buffer</option>
           <option value="{optimizeMerges: true}">Real Z Buffer + Optimize Merges</option>
         </select>
         </td></tr>
       <tr><td>
-        Background color: <input id="bgcolor" class="color" onchange="document.body.style.backgroundColor = '#' + this.color.toString()">
+        Background color: <input id="bgcolor" class="color" value="#93946A" onchange="document.body.style.backgroundColor = '#' + this.color.toString()">
         </td></tr>
     </table>
  </div>

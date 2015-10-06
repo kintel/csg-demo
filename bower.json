@@ -20,6 +20,7 @@
     "jscolor": "~1.4.2",
     "three.js": "threejs#master",
     "three.js-dev": "threejs#dev",
-    "three.js-kintel": "kintel/three.js#depthtextures-build"
+    "three.js-kintel": "kintel/three.js#depthtextures-build",
+    "three.js-kintel2": "kintel/three.js#dynamic-uniforms2"
   }
 }
