@@ -2,8 +2,9 @@
 
 * SCS optimization using ID colors
   - finalize color/id generation
+  - Reconfigure texture resources when settings change. Currently desttextures and csgTexture float vs. byte
 * Subtraction sequence optimization
-* Redo the JSON format for easier testing
+* JSON format: Reinstate transparents
 * Performance measurement of render passes?
 * Add cool material (Layer visualization?)
 * Proper resizing
