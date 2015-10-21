@@ -40,6 +40,8 @@ var controls;
 var camera;
 var extra_objects_scene;
 
+var csgscene;
+
 window.onload = function() {
 	
   document.body.style.backgroundColor = '#' + $("#bgcolor")[0].color.toString();
@@ -60,6 +62,14 @@ window.onload = function() {
   controls.staticMoving = true;
   controls.dynamicDampingFactor = 0.1;
   controls.addEventListener('change', render);
+
+  canvaswrapper.addEventListener('click', function(e) {
+    var mouse = {};
+    mouse.x = 2 * (e.clientX / canvaswrapper.clientWidth) - 1;
+    mouse.y = 1 - 2 * (e.clientY / canvaswrapper.clientHeight);
+    console.log("click: " + mouse.x + "," + mouse.y);
+    rayPick(mouse);
+  }, false);
   
   // create a point light
   var pointLight = new THREE.PointLight(0xFFFFFF);
@@ -204,6 +214,50 @@ gl_FragColor = vec4(col, 1);\n\
   loadModel(document.getElementById('menu').value);
 
   animate();
+}
+
+var currentPick;
+var currentPickMaterial;
+var selectionMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff });
+function rayPick(mouse) {
+  var pickedmesh = csgscene.pick(mouse, camera);
+
+  // Keep track of original properties of selected mesh
+  if (currentPick) {
+    currentPick.meshes.forEach(function(mesh) {
+      mesh.material = currentPickMaterial;
+    });
+  }
+
+  if (pickedmesh && pickedmesh.csgleaf) {
+    console.log("Found Leaf!");
+    currentPick = pickedmesh.csgleaf;
+  }
+  else {
+    currentPick = undefined;
+  }
+
+  if (currentPick) {
+    if (currentPick.csgleaf) console.log("Found Leaf!");
+
+    // FIXME:
+    // The currentPick mesh represents a CSGLeaf (but not when reading from JSON)
+    // Multiple meshes can represent the same CSGLeaf, but when rendering
+    // meshes, we only look at matching depth values, so we don't know which
+    // one actually represents the mesh we should draw. Since the materials are almost always
+    // (see e.g. https://github.com/openscad/openscad/issues/1000 for an example)
+    // the same, it doesn't matter, except that it makes rendering selection highlights harder.
+    // We fix this by selecting all meshes originating from the same CSGLeaf
+    // 
+    currentPickMaterial = pickedmesh.material;
+    currentPick.meshes.forEach(function(mesh) {
+      mesh.material = selectionMaterial;
+    });
+  }
+  render();
+  // FIXME: Map from Object3D to CSGLeaf instance
+  // OpenSCAD Node: csgleaf.geometry
+  // Select in AST and source code
 }
 
 function setupWindowViewport(pos, size, canvassize) {
@@ -413,7 +467,7 @@ function render() {
 }
 
 function loadModel(filename) {
-  var csgscene = new CSGScene();
+  csgscene = new CSGScene();
   csgscene.load(filename, function() {
     console.log('Loaded ' + filename);
     scsRenderer.setScene(csgscene);
