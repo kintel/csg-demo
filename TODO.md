@@ -9,3 +9,9 @@
 * Add cool material (Layer visualization?)
 * Proper resizing
 * First render() fails (default GL values?)
+* picking
+  o Clean up userData->csgleaf hack. Use names instead (to identify identical objects)?
+    -> Make optional (generate IDs?)
+    -> Update JSON exporter correspondingly
+    
+  
