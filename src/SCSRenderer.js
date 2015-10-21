@@ -189,7 +189,6 @@ void main() {\n\
     vertexShader: idMergeShader.vertexShader,
     fragmentShader: idMergeShader.fragmentShader
   } );
-  this.idMergeMaterial.hasDynamicUniforms = true;
 
   this.idColorMaterial = new THREE.ShaderMaterial( {
     blending: THREE.NoBlending,
@@ -197,7 +196,6 @@ void main() {\n\
     vertexShader: idColorShader.vertexShader,
     fragmentShader: idColorShader.fragmentShader
   } );
-  this.idColorMaterial.hasDynamicUniforms = true;
   
   this.mergeObjectsMaterial = new THREE.ShaderMaterial( {
     uniforms: mergeObjectsShader.uniforms,
