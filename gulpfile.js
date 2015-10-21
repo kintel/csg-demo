@@ -21,6 +21,12 @@ gulp.task('browserify', function() {
   globby(['./src/**/*.js']).then(function(entries) {
     var b = browserify(entries);
     b.bundle()
+      .on('error', function(err) {
+        // print the error (can replace with gulp-util)
+        console.log(err);
+        // end this stream
+        this.emit('end');
+      })
       .pipe(source('app.js'))
       .pipe(buffer())
       .pipe(gulp.dest('public/js'));
