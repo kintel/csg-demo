@@ -1,1 +1,503 @@
-{"metadata":{"version":4.4,"type":"Object","generator":"Object3D.toJSON"},"geometries":[{"uuid":"D96BC7DB-B249-4805-A0CE-CB8AAA48AEC4","type":"BoxGeometry","name":"cube","width":1,"height":1,"depth":1},{"uuid":"1977250B-4377-4584-A784-AD988653D672","type":"CylinderGeometry","name":"capped_cone","radiusTop":5,"radiusBottom":20,"height":50,"radialSegments":32,"heightSegments":1}],"materials":[{"uuid":"5E7F906D-E5B0-4026-B5E4-D5FBA7681271","type":"MeshLambertMaterial","name":"openscad_yellow","color":16373548,"emissive":0},{"uuid":"E3B61EC1-1C3C-4FF7-ABBF-3A17BAC0EA26","type":"MeshLambertMaterial","name":"openscad_green","color":10341201,"emissive":0}],"object":{"uuid":"38770EA6-3276-4D33-AEFF-8D984D50CABC","type":"Group","matrix":[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],"children":[{"uuid":"4B364D23-685D-4009-B287-AD86168AC98F","type":"Group","matrix":[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],"children":[{"uuid":"C631C7CC-3604-4D97-885F-7F4CAE2E4CBB","type":"Group","userData":{"type":"intersections"},"matrix":[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],"children":[{"uuid":"E42F5B84-0CEF-434E-B9E8-6E49ED7B905F","type":"Mesh","name":"p1i_a","matrix":[30,0,0,0,0,30,0,0,0,0,30,0,0,0,0,1],"geometry":"D96BC7DB-B249-4805-A0CE-CB8AAA48AEC4","material":"5E7F906D-E5B0-4026-B5E4-D5FBA7681271"},{"uuid":"99F5CCA6-CE80-48DB-A1AA-D72653FAE130","type":"Mesh","name":"p1i_b","matrix":[1,0,0,0,0,-0.0000036732051285071066,1,0,0,-1,-0.0000036732051285071066,0,0,0,5,1],"geometry":"1977250B-4377-4584-A784-AD988653D672","material":"5E7F906D-E5B0-4026-B5E4-D5FBA7681271"}]},{"uuid":"29EC68A3-C247-41CE-B71B-1A13EBD5C7B2","type":"Group","userData":{"type":"differences"},"matrix":[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],"children":[{"uuid":"8C479E9C-9675-4FA4-AEE8-54318A71D5E1","type":"Mesh","name":"p1d_a","matrix":[50,0,0,0,0,10,0,0,0,0,10,0,0,0,0,1],"geometry":"D96BC7DB-B249-4805-A0CE-CB8AAA48AEC4","material":"E3B61EC1-1C3C-4FF7-ABBF-3A17BAC0EA26"},{"uuid":"066A109D-F1B7-40E6-BBBD-6370B5893734","type":"Mesh","name":"p1d_b","matrix":[10,0,0,0,0,50,0,0,0,0,10,0,0,0,0,1],"geometry":"D96BC7DB-B249-4805-A0CE-CB8AAA48AEC4","material":"E3B61EC1-1C3C-4FF7-ABBF-3A17BAC0EA26"},{"uuid":"0057683F-4D6D-4965-9C69-702A61AC7778","type":"Mesh","name":"p1d_c","matrix":[10,0,0,0,0,10,0,0,0,0,50,0,0,0,0,1],"geometry":"D96BC7DB-B249-4805-A0CE-CB8AAA48AEC4","material":"E3B61EC1-1C3C-4FF7-ABBF-3A17BAC0EA26"}]}]},{"uuid":"50231C6F-4A26-4653-9CDB-966B5529F455","type":"Group","matrix":[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],"children":[{"uuid":"BEE4A8ED-04AE-4A19-A8D4-07DE5D3AA77D","type":"Group","userData":{"type":"intersections"},"matrix":[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],"children":[{"uuid":"6203EFE1-FD19-45F4-9ADC-0BF1AEB15003","type":"Mesh","name":"p2i_a","matrix":[15,0,0,0,0,15,0,0,0,0,20,0,0,0,-25,1],"geometry":"D96BC7DB-B249-4805-A0CE-CB8AAA48AEC4","material":"5E7F906D-E5B0-4026-B5E4-D5FBA7681271"},{"uuid":"B2C2E46B-1E56-45B4-9D81-CCED7AE155F4","type":"Mesh","name":"p2i_b","matrix":[1,0,0,0,0,-0.0000036732051285071066,1,0,0,-1,-0.0000036732051285071066,0,0,0,5,1],"geometry":"1977250B-4377-4584-A784-AD988653D672","material":"5E7F906D-E5B0-4026-B5E4-D5FBA7681271"}]},{"uuid":"5F049CC6-3CB2-4E75-BBF2-E9ECF5AE2D65","type":"Group","userData":{"type":"differences"},"matrix":[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],"children":[{"uuid":"F27B4993-CDF1-4D22-B10C-B0C3D2B5EC71","type":"Mesh","name":"p2d_a","matrix":[50,0,0,0,0,10,0,0,0,0,10,0,0,0,0,1],"geometry":"D96BC7DB-B249-4805-A0CE-CB8AAA48AEC4","material":"E3B61EC1-1C3C-4FF7-ABBF-3A17BAC0EA26"},{"uuid":"C7A289EE-10F8-485D-8801-59399519C42D","type":"Mesh","name":"p2d_b","matrix":[10,0,0,0,0,50,0,0,0,0,10,0,0,0,0,1],"geometry":"D96BC7DB-B249-4805-A0CE-CB8AAA48AEC4","material":"E3B61EC1-1C3C-4FF7-ABBF-3A17BAC0EA26"},{"uuid":"8E4BDB0C-0417-4544-83A6-75C127114AC5","type":"Mesh","name":"p2d_c","matrix":[10,0,0,0,0,10,0,0,0,0,50,0,0,0,0,1],"geometry":"D96BC7DB-B249-4805-A0CE-CB8AAA48AEC4","material":"E3B61EC1-1C3C-4FF7-ABBF-3A17BAC0EA26"}]}]}]}}
+{
+  "metadata": {
+    "version": 4.4,
+    "type": "Object",
+    "generator": "Object3D.toJSON"
+  },
+  "geometries": [
+    {
+      "uuid": "D96BC7DB-B249-4805-A0CE-CB8AAA48AEC4",
+      "type": "BoxGeometry",
+      "name": "cube",
+      "width": 1,
+      "height": 1,
+      "depth": 1
+    },
+    {
+      "uuid": "1977250B-4377-4584-A784-AD988653D672",
+      "type": "CylinderGeometry",
+      "name": "capped_cone",
+      "radiusTop": 5,
+      "radiusBottom": 20,
+      "height": 50,
+      "radialSegments": 32,
+      "heightSegments": 1
+    }
+  ],
+  "materials": [
+    {
+      "uuid": "5E7F906D-E5B0-4026-B5E4-D5FBA7681271",
+      "type": "MeshLambertMaterial",
+      "name": "openscad_yellow",
+      "color": 16373548,
+      "emissive": 0
+    },
+    {
+      "uuid": "E3B61EC1-1C3C-4FF7-ABBF-3A17BAC0EA26",
+      "type": "MeshLambertMaterial",
+      "name": "openscad_green",
+      "color": 10341201,
+      "emissive": 0
+    }
+  ],
+  "object": {
+    "uuid": "38770EA6-3276-4D33-AEFF-8D984D50CABC",
+    "type": "Group",
+    "matrix": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    "children": [
+      {
+        "uuid": "4B364D23-685D-4009-B287-AD86168AC98F",
+        "type": "Group",
+        "matrix": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ],
+        "children": [
+          {
+            "uuid": "C631C7CC-3604-4D97-885F-7F4CAE2E4CBB",
+            "type": "Group",
+            "userData": {
+              "type": "intersections"
+            },
+            "matrix": [
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1
+            ],
+            "children": [
+              {
+                "uuid": "E42F5B84-0CEF-434E-B9E8-6E49ED7B905F",
+                "type": "Mesh",
+                "name": "p1i_a",
+                "userData": {
+                  "csgleaf": "cubeA"
+                },
+                "matrix": [
+                  30,
+                  0,
+                  0,
+                  0,
+                  0,
+                  30,
+                  0,
+                  0,
+                  0,
+                  0,
+                  30,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "geometry": "D96BC7DB-B249-4805-A0CE-CB8AAA48AEC4",
+                "material": "5E7F906D-E5B0-4026-B5E4-D5FBA7681271"
+              },
+              {
+                "uuid": "99F5CCA6-CE80-48DB-A1AA-D72653FAE130",
+                "type": "Mesh",
+                "name": "p1i_b",
+                "userData": {
+                  "csgleaf": "cylinder"
+                },
+                "matrix": [
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -3.6732051285071e-6,
+                  1,
+                  0,
+                  0,
+                  -1,
+                  -3.6732051285071e-6,
+                  0,
+                  0,
+                  0,
+                  5,
+                  1
+                ],
+                "geometry": "1977250B-4377-4584-A784-AD988653D672",
+                "material": "5E7F906D-E5B0-4026-B5E4-D5FBA7681271"
+              }
+            ]
+          },
+          {
+            "uuid": "29EC68A3-C247-41CE-B71B-1A13EBD5C7B2",
+            "type": "Group",
+            "userData": {
+              "type": "differences"
+            },
+            "matrix": [
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1
+            ],
+            "children": [
+              {
+                "uuid": "8C479E9C-9675-4FA4-AEE8-54318A71D5E1",
+                "type": "Mesh",
+                "name": "p1d_a",
+                "userData": {
+                  "csgleaf": "cubeC"
+                },
+                "matrix": [
+                  50,
+                  0,
+                  0,
+                  0,
+                  0,
+                  10,
+                  0,
+                  0,
+                  0,
+                  0,
+                  10,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "geometry": "D96BC7DB-B249-4805-A0CE-CB8AAA48AEC4",
+                "material": "E3B61EC1-1C3C-4FF7-ABBF-3A17BAC0EA26"
+              },
+              {
+                "uuid": "066A109D-F1B7-40E6-BBBD-6370B5893734",
+                "type": "Mesh",
+                "name": "p1d_b",
+                "userData": {
+                  "csgleaf": "cubeD"
+                },
+                "matrix": [
+                  10,
+                  0,
+                  0,
+                  0,
+                  0,
+                  50,
+                  0,
+                  0,
+                  0,
+                  0,
+                  10,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "geometry": "D96BC7DB-B249-4805-A0CE-CB8AAA48AEC4",
+                "material": "E3B61EC1-1C3C-4FF7-ABBF-3A17BAC0EA26"
+              },
+              {
+                "uuid": "0057683F-4D6D-4965-9C69-702A61AC7778",
+                "type": "Mesh",
+                "name": "p1d_c",
+                "userData": {
+                  "csgleaf": "cubeE"
+                },
+                "matrix": [
+                  10,
+                  0,
+                  0,
+                  0,
+                  0,
+                  10,
+                  0,
+                  0,
+                  0,
+                  0,
+                  50,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "geometry": "D96BC7DB-B249-4805-A0CE-CB8AAA48AEC4",
+                "material": "E3B61EC1-1C3C-4FF7-ABBF-3A17BAC0EA26"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "uuid": "50231C6F-4A26-4653-9CDB-966B5529F455",
+        "type": "Group",
+        "matrix": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ],
+        "children": [
+          {
+            "uuid": "BEE4A8ED-04AE-4A19-A8D4-07DE5D3AA77D",
+            "type": "Group",
+            "userData": {
+              "type": "intersections"
+            },
+            "matrix": [
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1
+            ],
+            "children": [
+              {
+                "uuid": "6203EFE1-FD19-45F4-9ADC-0BF1AEB15003",
+                "type": "Mesh",
+                "name": "p2i_a",
+                "userData": {
+                  "csgleaf": "cubeB"
+                },
+                "matrix": [
+                  15,
+                  0,
+                  0,
+                  0,
+                  0,
+                  15,
+                  0,
+                  0,
+                  0,
+                  0,
+                  20,
+                  0,
+                  0,
+                  0,
+                  -25,
+                  1
+                ],
+                "geometry": "D96BC7DB-B249-4805-A0CE-CB8AAA48AEC4",
+                "material": "5E7F906D-E5B0-4026-B5E4-D5FBA7681271"
+              },
+              {
+                "uuid": "B2C2E46B-1E56-45B4-9D81-CCED7AE155F4",
+                "type": "Mesh",
+                "name": "p2i_b",
+                "userData": {
+                  "csgleaf": "cylinder"
+                },
+                "matrix": [
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  -3.6732051285071e-6,
+                  1,
+                  0,
+                  0,
+                  -1,
+                  -3.6732051285071e-6,
+                  0,
+                  0,
+                  0,
+                  5,
+                  1
+                ],
+                "geometry": "1977250B-4377-4584-A784-AD988653D672",
+                "material": "5E7F906D-E5B0-4026-B5E4-D5FBA7681271"
+              }
+            ]
+          },
+          {
+            "uuid": "5F049CC6-3CB2-4E75-BBF2-E9ECF5AE2D65",
+            "type": "Group",
+            "userData": {
+              "type": "differences"
+            },
+            "matrix": [
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1
+            ],
+            "children": [
+              {
+                "uuid": "F27B4993-CDF1-4D22-B10C-B0C3D2B5EC71",
+                "type": "Mesh",
+                "name": "p2d_a",
+                "userData": {
+                  "csgleaf": "cubeC"
+                },
+                "matrix": [
+                  50,
+                  0,
+                  0,
+                  0,
+                  0,
+                  10,
+                  0,
+                  0,
+                  0,
+                  0,
+                  10,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "geometry": "D96BC7DB-B249-4805-A0CE-CB8AAA48AEC4",
+                "material": "E3B61EC1-1C3C-4FF7-ABBF-3A17BAC0EA26"
+              },
+              {
+                "uuid": "C7A289EE-10F8-485D-8801-59399519C42D",
+                "type": "Mesh",
+                "name": "p2d_b",
+                "userData": {
+                  "csgleaf": "cubeD"
+                },
+                "matrix": [
+                  10,
+                  0,
+                  0,
+                  0,
+                  0,
+                  50,
+                  0,
+                  0,
+                  0,
+                  0,
+                  10,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "geometry": "D96BC7DB-B249-4805-A0CE-CB8AAA48AEC4",
+                "material": "E3B61EC1-1C3C-4FF7-ABBF-3A17BAC0EA26"
+              },
+              {
+                "uuid": "8E4BDB0C-0417-4544-83A6-75C127114AC5",
+                "type": "Mesh",
+                "name": "p2d_c",
+                "userData": {
+                  "csgleaf": "cubeE"
+                },
+                "matrix": [
+                  10,
+                  0,
+                  0,
+                  0,
+                  0,
+                  10,
+                  0,
+                  0,
+                  0,
+                  0,
+                  50,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "geometry": "D96BC7DB-B249-4805-A0CE-CB8AAA48AEC4",
+                "material": "E3B61EC1-1C3C-4FF7-ABBF-3A17BAC0EA26"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
