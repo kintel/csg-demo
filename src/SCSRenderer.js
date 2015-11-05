@@ -29,13 +29,9 @@ gl_FragColor = vec4(0.0, 0.0, 0.0, calcDepth(pos)); // Copy calculated depth to 
   };
   var idColorShader = {
     uniforms: {
-      color: {
-	type: "c",
-	value: new THREE.Color(0.8,1.0,0.8),
-	updateFunction: function( uniform, camera, object ){
-	  uniform.value.setHex(object.userData.id);
-	}
-      }
+      color: new THREE.Uniform('c', new THREE.Color(0.8,1.0,0.8)).onUpdate(function(object, camera) {
+	this.value.setHex(object.userData.id);
+      })
     },
     vertexShader: '\
 varying vec4 pos;\n\
@@ -55,13 +51,9 @@ void main() {\n\
     uniforms: {
       idtexture: {type: 't'},
       screenSize: {type: '2f'},
-      objectID: {
-	type: "c",
-	value: new THREE.Color(),
-	updateFunction: function( uniform, camera, object ){
-	  uniform.value.setHex(object.userData.id);
-	}
-      }
+       objectID: new THREE.Uniform('c', new THREE.Color()).onUpdate(function(object, camera) {
+	this.value.setHex(object.userData.id);
+      })
     },
     vertexShader: '\
 varying vec4 pos;\n\
