@@ -489,8 +489,7 @@ function resizeCanvasToDisplaySize(force) {
   var height = canvaswrapper.clientHeight;
   if (force || canvas.width != width || canvas.height != height) {
     // Will update canvas size and gl.viewport
-    if (scsRenderer) scsRenderer.setSize(width, height, true);
-    else renderer.setSize(width, height, true);
+    renderer.setSize(width, height, true);
     if (camera) {
       camera.aspect = width/height;
       camera.updateProjectionMatrix();

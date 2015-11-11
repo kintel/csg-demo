@@ -901,16 +901,14 @@ SCSRenderer.prototype = {
 
   render: function(camera, options) {
     options = options || {};
-    this.renderWithRealZBuffer(camera, options);
-  },
 
-  setSize: function(width, height) {
-    this.renderer.setSize(width, height);
-
-    if (this.size.width != width || this.size.height != height) {
-      this.size = this.renderer.getSize();
+    var rendererSize = this.renderer.getSize();
+    if (this.size.width != rendererSize.width || this.size.height != rendererSize.height) {
+      this.size = rendererSize;
       this.setupTextureResources();
     }
+
+    this.renderWithRealZBuffer(camera, options);
   },
 
   addLights: function(lights) {
