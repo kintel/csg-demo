@@ -1,5 +1,6 @@
 #TODO
 
+* CSG not working for example006.scad
 * SCS optimization using ID colors
   - finalize color/id generation
   - Reconfigure texture resources when settings change. Currently desttextures and csgTexture float vs. byte
@@ -11,7 +12,5 @@
 * First render() fails (default GL values?)
 * picking
   o Clean up userData->csgleaf hack. Use names instead (to identify identical objects)?
-    -> Make optional (generate IDs?)
-    -> Update JSON exporter correspondingly
     
   
