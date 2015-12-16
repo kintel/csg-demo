@@ -8,9 +8,14 @@ gulp.task('bower', function() { 
   .pipe(gulp.dest('public/vendor/')) 
 });
 
-gulp.task('copy', function () {
+gulp.task('copy-models', function () {
   gulp.src('./models/**/*')
     .pipe(gulp.dest('./public/models'));
+});
+
+gulp.task('copy-html', function () {
+  gulp.src('./html/**/*')
+    .pipe(gulp.dest('./public/'));
 });
 
 var browserify = require('browserify');
@@ -33,7 +38,7 @@ gulp.task('browserify', function() {
   });
 });
 
-gulp.task('serve', ['bower', 'browserify', 'copy'], function () {
+gulp.task('serve', ['bower', 'browserify', 'copy-models', 'copy-html'], function () {
   browserSync.init(null, {
     server: {
       baseDir: 'public',
@@ -48,6 +53,6 @@ gulp.task('serve', ['bower', 'browserify', 'copy'], function () {
 gulp.task('watch', ['serve'], function () {
     gulp.watch(['public/*.html'], reload);
     gulp.watch(['src/**/*.js'], ['browserify'], reload);
-    gulp.watch(['models/**/*'], ['copy'], reload);
-    gulp.watch(['bower.json'], ['copy'], reload);
+    gulp.watch(['models/**/*'], ['copy-models'], reload);
+    gulp.watch(['bower.json'], ['copy-models', 'copy-html'], reload);
 });

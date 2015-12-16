@@ -1,6 +1,6 @@
-bower_components/
-vendor
-node_modules
-public/js
-public/models
+/tmp
+/bower_components/
+/vendor
+/node_modules
+/public
 */#*
