@@ -1,5 +1,6 @@
 #TODO
 
+* The dependency "babel-preset-es2015" shouldn't be there. It looks like a problem related to https://github.com/substack/node-browserify/issues/1446
 * CSG not working for example006.scad
 * SCS optimization using ID colors
   - finalize color/id generation
