@@ -18,9 +18,6 @@
   "dependencies": {
     "jquery": "*",
     "jscolor": "~1.4.2",
-    "three.js": "threejs#master",
-    "three.js-dev": "threejs#r74",
-    "three.js-kintel": "kintel/three.js#depthtextures-build",
-    "three.js-kintel2": "kintel/three.js#dynamic-uniforms2"
+    "three.js-dev": "threejs#r74"
   }
 }
