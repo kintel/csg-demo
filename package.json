@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "description": "mkdir vendor     cd vendor     git clone https://github.com/kintel/three.js.git     cd three.js     git checkout depthtextures     cd utils/build     python build.py --include common --include extras     python build.py --include common --include extras --minify --output ../../build/three.min.js",
   "main": "index.js",
-  "dependencies": {},
   "devDependencies": {
     "babel-preset-es2015": "^6.3.13",
     "bower": "^1.7.1",
     "browser-sync": "^2.9.4",
     "browserify": "^12.0.1",
+    "gh-pages": "^5.0.0",
     "globby": "^3.0.1",
     "gulp": "^3.9.0",
     "gulp-bower": "0.0.10",
@@ -17,7 +17,8 @@
     "vinyl-source-stream": "^1.1.0"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy": "gh-pages -d public"
   },
   "repository": {
     "type": "git",
